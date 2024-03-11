@@ -1,9 +1,3 @@
-mod demo;
-mod firework;
-mod particle;
-mod term;
-mod utils;
-
 use std::{
     io::{stdout, Result},
     thread::sleep,
@@ -15,10 +9,10 @@ use crossterm::{
     event::{self, KeyCode},
     execute, terminal,
 };
-use demo::{demo_firework_1, demo_firework_2, demo_firework_comb_1};
-use firework::FireworkManager;
+use firework::demo::{demo_firework_1, demo_firework_2, demo_firework_comb_1};
+use firework::fireworks::FireworkManager;
+use firework::term::Terminal;
 use glam::Vec2;
-use term::Terminal;
 
 fn main() -> Result<()> {
     let mut stdout = stdout();

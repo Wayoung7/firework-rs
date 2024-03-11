@@ -1,18 +1,10 @@
-use std::{
-    collections::HashMap,
-    error::Error,
-    fs::File,
-    io::{Result, Stdout, Write},
-};
+use std::io::{Stdout, Write};
 
-use crossterm::{cursor::MoveTo, execute, queue, style, terminal};
-use glam::Vec2;
+use crossterm::{cursor::MoveTo, queue, style, terminal};
 
-use crate::{
-    firework::{FireworkManager, FireworkState},
-    particle::Particle,
-};
+use crate::fireworks::{FireworkManager, FireworkState};
 
+/// Wrap a character with color
 #[derive(Debug, Clone, Copy)]
 pub struct Char {
     pub text: char,
@@ -20,11 +12,13 @@ pub struct Char {
 }
 
 impl Char {
+    /// Create a new `Char`
     fn new(text: char, color: style::Color) -> Self {
         Self { text, color }
     }
 }
 
+/// Struct that represents a terminal
 pub struct Terminal {
     pub size: (u16, u16),
     pub screen: Vec<Vec<Char>>,
@@ -49,6 +43,7 @@ impl Default for Terminal {
 }
 
 impl Terminal {
+    /// Clear the terminal screen by setting all the characters in terminal to space
     pub fn clear_screen(&mut self) {
         let size = terminal::size().unwrap();
         let mut s = Vec::new();
@@ -65,6 +60,7 @@ impl Terminal {
         self.screen = s;
     }
 
+    /// Print the data out to terminal
     pub fn print(&self, w: &mut Stdout) {
         self.screen.iter().enumerate().for_each(|(y, line)| {
             line.iter().enumerate().for_each(|(x, c)| {
@@ -80,6 +76,7 @@ impl Terminal {
         w.flush().unwrap();
     }
 
+    /// Write the rendering data of all `Fireworks` and `Particles` to `Terminal`
     pub fn render(&mut self, fireworks: &FireworkManager) {
         self.clear_screen();
         for firework in fireworks.fireworks.iter() {

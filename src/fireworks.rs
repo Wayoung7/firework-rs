@@ -2,10 +2,13 @@ use std::time::{Duration, SystemTime};
 
 use glam::Vec2;
 
-use crate::particle::{LifeState, Particle};
+use crate::particle::Particle;
 
+/// Struct representing a single firework
 pub struct Firework {
+    /// The `SystemTime` when the object is initialized/defined
     pub init_time: SystemTime,
+    /// Firework spawns after `spawn_after` from `init_time`
     pub spawn_after: Duration,
     pub center: Vec2,
     pub particles: Vec<Particle>,
@@ -27,6 +30,12 @@ impl Default for Firework {
 }
 
 impl Firework {
+    /// Update the `Firework`
+    ///
+    /// # Arguments
+    ///
+    /// * `now` - `SystemTime` of now
+    /// * `delta_time` - `Duration` since last update
     pub fn update(&mut self, now: SystemTime, delta_time: Duration) {
         // Spawn particles
         if now >= self.init_time + self.spawn_after {
@@ -57,10 +66,12 @@ impl Firework {
         }
     }
 
+    /// Return true if the `FireworkState` is `Gone`
     pub fn is_gone(&self) -> bool {
         self.state == FireworkState::Gone
     }
 
+    /// Reset `FireworkManager` to its initial state so that the fireworks show starts again
     pub fn reset(&mut self) {
         self.init_time = SystemTime::now();
         self.state = FireworkState::Waiting;
@@ -70,6 +81,14 @@ impl Firework {
     }
 }
 
+/// Struct representing state of a `Firework`
+///
+/// State goes from `Waiting` -> `Alive` -> `Gone`
+///
+/// # Notes
+///
+/// - `Firework` turns to `Alive` when it is spawned
+/// - `Firework` turns to `Gone` when all of its `Particles` are `Dead`
 #[derive(Debug, PartialEq)]
 pub enum FireworkState {
     Waiting,
@@ -83,10 +102,21 @@ impl Default for FireworkState {
     }
 }
 
+/// Struct representing the configuration of a single `Firework`
+///
+/// This applies to all `Particle` in the `Firework`
 pub struct FireworkConfig {
+    /// Larger `gravity_scale` tends to pull particles down
     pub gravity_scale: f32,
+    /// Air resistance scale
+    /// Warning: too large or too small `ar_scale` may lead to unexpected behavior of `Particles`
     pub ar_scale: f32,
     pub additional_force: Vec2,
+    /// This field is a function that takes a float between 0 and 1, returns a float representing all `Particle`s' gradient
+    ///
+    /// `Particle`s' gradient changes according to its elapsed time and lifetime
+    /// The input `f32` equals to `time_elapsed`/`life_time`, which returns a `f32` affecting its color gradient
+    /// `gradient_scale` returns 1. means`Particle` will have the same colors as defined all over its lifetime
     pub gradient_scale: fn(f32) -> f32,
 }
 
@@ -102,6 +132,7 @@ impl Default for FireworkConfig {
 }
 
 impl FireworkConfig {
+    /// Set `gradient_scale`
     #[inline]
     #[must_use]
     pub fn with_gradient_scale(mut self, f: fn(f32) -> f32) -> Self {
@@ -109,6 +140,7 @@ impl FireworkConfig {
         self
     }
 
+    /// Set `gravity_scale`
     #[inline]
     #[must_use]
     pub fn with_gravity_scale(mut self, s: f32) -> Self {
@@ -116,6 +148,7 @@ impl FireworkConfig {
         self
     }
 
+    /// Set `ar_scale`
     #[inline]
     #[must_use]
     pub fn with_ar_scale(mut self, s: f32) -> Self {
@@ -123,6 +156,7 @@ impl FireworkConfig {
         self
     }
 
+    /// Set `additional_force`
     #[inline]
     #[must_use]
     pub fn with_additional_force(mut self, af: Vec2) -> Self {
@@ -131,8 +165,10 @@ impl FireworkConfig {
     }
 }
 
+/// `FireworkManager` manages all `Firework`s
 pub struct FireworkManager {
     pub fireworks: Vec<Firework>,
+    /// If this is `true`, the whole fireworks show will restart when all the `Firework`s are `Gone`
     pub enable_loop: bool,
 }
 
@@ -146,6 +182,7 @@ impl Default for FireworkManager {
 }
 
 impl FireworkManager {
+    /// Create a new `FireworkManager` with `enable_loop` set to `false`
     pub fn new(fireworks: Vec<Firework>) -> Self {
         Self {
             fireworks,
@@ -153,6 +190,7 @@ impl FireworkManager {
         }
     }
 
+    /// Add a `Firework` to `FireworkManager`
     #[inline]
     #[must_use]
     pub fn add_firework(mut self, firework: Firework) -> Self {
@@ -160,6 +198,7 @@ impl FireworkManager {
         self
     }
 
+    // Add a vector of `Firework`s to `FireworkManager`
     #[inline]
     #[must_use]
     pub fn add_fireworks(mut self, mut fireworks: Vec<Firework>) -> Self {
@@ -167,6 +206,7 @@ impl FireworkManager {
         self
     }
 
+    /// Set `enable_loop` to `true`
     #[inline]
     #[must_use]
     pub fn enable_loop(mut self) -> Self {
@@ -174,6 +214,7 @@ impl FireworkManager {
         self
     }
 
+    /// Set `enable_loop` to `false`
     #[inline]
     #[must_use]
     pub fn disable_loop(mut self) -> Self {
@@ -181,12 +222,14 @@ impl FireworkManager {
         self
     }
 
+    /// Reset the whole fireworks show
     pub fn reset(&mut self) {
         for ele in self.fireworks.iter_mut() {
             ele.reset();
         }
     }
 
+    /// The main update function
     pub fn update(&mut self, now: SystemTime, delta_time: Duration) {
         for ele in self.fireworks.iter_mut() {
             ele.update(now, delta_time);
@@ -202,67 +245,3 @@ impl FireworkManager {
         }
     }
 }
-
-// pub struct Firework<'a> {
-//     pub timer: Duration,
-//     pub triggered_time: Option<Duration>,
-//     pub trigger: Vec<(fn(&Firework) -> bool, &'a mut Firework<'a>)>,
-//     pub center: Vec2,
-//     pub particle_gen: fn() -> Vec<Particle>,
-//     pub force_field: fn(Vec2, Vec2) -> Vec2,
-//     pub state: FireworkState,
-// }
-
-// impl<'a> Default for Firework<'a> {
-//     fn default() -> Self {
-//         Self {
-//             timer: Duration::ZERO,
-//             triggered_time: None,
-//             trigger: Vec::new(),
-//             center: Vec2::ZERO,
-//             particle_gen: || Vec::new(),
-//             force_field: |_, _| Vec2::ZERO,
-//             state: FireworkState::Waiting,
-//         }
-//     }
-// }
-
-// impl<'a> Firework<'a> {
-//     pub fn with_center(&mut self, center: Vec2) {
-//         self.center = center;
-//     }
-//     pub fn with_trigger(
-//         &mut self,
-//         trigger: &mut Vec<(fn(&Firework) -> bool, &'a mut Firework<'a>)>,
-//     ) {
-//         self.trigger.append(trigger);
-//     }
-//     pub fn with_particle_gen(&mut self, particle_gen: fn() -> Vec<Particle>) {
-//         self.particle_gen = particle_gen;
-//     }
-//     pub fn with_force_field(&mut self, force_field: fn(Vec2, Vec2) -> Vec2) {
-//         self.force_field = force_field;
-//     }
-//     pub fn with_triggered_time(&mut self, triggered_time: Duration) {
-//         self.triggered_time = Some(triggered_time);
-//     }
-//     pub fn spawn(&mut self) {
-//         self.state = FireworkState::Alive;
-//         (self.particle_gen)();
-//     }
-
-//     pub fn update(&mut self, delta_time: Duration) {
-//         self.timer += delta_time;
-//         if let Some(tt) = self.triggered_time {
-//             if tt <= self.timer {
-//                 self.state = FireworkState::Alive;
-//                 (self.particle_gen)();
-//             }
-//         }
-//         for f in self.trigger.iter_mut() {
-//             if (f.0)(&self) {
-//                 f.1.spawn();
-//             }
-//         }
-//     }
-// }

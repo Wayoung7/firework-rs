@@ -1,11 +1,13 @@
-use std::{collections::HashMap, mem::swap, time::Duration};
+use std::{collections::HashMap, time::Duration};
 
-use crossterm::style;
 use glam::Vec2;
 use rand::{seq::IteratorRandom, thread_rng};
 
-use crate::{firework::FireworkConfig, utils::distance_squared};
+use crate::{fireworks::FireworkConfig, utils::distance_squared};
 
+/// The struct represents the states in a `Particle`'s lifetime
+///
+/// Every `Particle` goes from `Alive` -> `Declining` -> `Dying` -> `Dead`
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum LifeState {
     Alive,
@@ -14,13 +16,17 @@ pub enum LifeState {
     Dead,
 }
 
+/// The struct representing a single particle
 #[derive(Debug, Clone)]
 pub struct Particle {
     pub pos: Vec2,
     pub vel: Vec2,
+    /// Records a `trail_length` of previous positions of the `Particle`
     pub trail: Vec<Vec2>,
     pub life_state: LifeState,
+    /// Color in RGB (from 0 to 255)
     pub color: (u8, u8, u8),
+    /// `Duration` since initialization of this `Particle`
     pub time_elapsed: Duration,
     pub config: ParticleConfig,
 }
@@ -40,6 +46,7 @@ impl Default for Particle {
 }
 
 impl Particle {
+    /// Create a new `Particle`
     pub fn new(
         pos: Vec2,
         vel: Vec2,
@@ -61,10 +68,12 @@ impl Particle {
         }
     }
 
+    /// Return true if `Particle`'s `LifeState` is `Dead`
     pub fn is_dead(&self) -> bool {
         self.life_state == LifeState::Dead
     }
 
+    /// Reset `Particle` to its initial state
     pub fn reset(&mut self) {
         self.pos = self.config.init_pos;
         self.vel = self.config.init_vel;
@@ -73,6 +82,11 @@ impl Particle {
         self.time_elapsed = Duration::ZERO;
     }
 
+    /// Update the `Particle` based on delta time
+    ///
+    /// # Arguments
+    ///
+    /// * - `duration` - `Duration` since last update
     pub fn update(&mut self, duration: Duration, config: &FireworkConfig) {
         const TIME_STEP: f32 = 0.001;
         self.time_elapsed += duration;
@@ -90,6 +104,7 @@ impl Particle {
         self.trail.push(self.pos);
     }
 
+    /// Return pixel data of the current stage of `Particle`
     pub fn draw(&self, config: &FireworkConfig) -> HashMap<(isize, isize), (char, (u8, u8, u8))> {
         let mut data = HashMap::new();
         let mut v: Vec<Vec2> = self.trail.clone();
@@ -117,11 +132,13 @@ impl Particle {
     }
 }
 
+/// Struct that defines the configuration of `Particle`
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ParticleConfig {
     pub init_pos: Vec2,
     pub init_vel: Vec2,
     pub trail_length: usize,
+    /// `Duration` from `Particle`'s initialization to its `Dead`
     pub life_time: Duration,
 }
 
@@ -137,6 +154,7 @@ impl Default for ParticleConfig {
 }
 
 impl ParticleConfig {
+    /// Create a new `ParticleConfig`
     pub fn new(init_pos: Vec2, init_vel: Vec2, trail_length: usize, life_time: Duration) -> Self {
         Self {
             init_pos,

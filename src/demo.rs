@@ -1,11 +1,10 @@
 use std::time::{Duration, SystemTime};
 
-use crossterm::style;
 use glam::Vec2;
 use rand::{seq::IteratorRandom, thread_rng, Rng};
 
 use crate::{
-    firework::{Firework, FireworkConfig, FireworkState},
+    fireworks::{Firework, FireworkConfig},
     particle::Particle,
     utils::{
         explosion_gradient_1, explosion_gradient_2, gen_points_circle, gen_points_circle_normal,

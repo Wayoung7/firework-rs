@@ -2,10 +2,12 @@ use glam::Vec2;
 use rand::Rng;
 use rand_distr::Distribution;
 
+/// Round a `Vec2` from `(f32, f32)` to `(isize, isize)`
 pub fn round(input: Vec2) -> (isize, isize) {
     (input.x.round() as isize, input.y.round() as isize)
 }
 
+/// Generate random `Vec2` within a circle range
 pub fn gen_points_circle(radius: isize, n: usize) -> Vec<Vec2> {
     let mut res = Vec::new();
     while res.len() < n {
@@ -18,6 +20,9 @@ pub fn gen_points_circle(radius: isize, n: usize) -> Vec<Vec2> {
     res
 }
 
+/// Generate random `Vec2` within a circle range with normal distribution
+///
+/// Points closer to the center will be denser
 pub fn gen_points_circle_normal(radius: f32, n: usize) -> Vec<Vec2> {
     let mut rng = rand::thread_rng();
     let normal = rand_distr::Normal::new(0., radius / 9.).unwrap();
@@ -38,10 +43,14 @@ pub fn gen_points_circle_normal(radius: f32, n: usize) -> Vec<Vec2> {
     res
 }
 
+/// Return squared distance between to points
 pub fn distance_squared(a: Vec2, b: Vec2) -> f32 {
     (b.x - a.x).powi(2) + (b.y - a.y).powi(2)
 }
 
+/// A sample function defining the gradient of the `Particle`
+///
+/// The visual effect is similar to an explosion
 pub fn explosion_gradient_1(x: f32) -> f32 {
     if x < 0.087 {
         150. * x.powi(2)
@@ -50,6 +59,9 @@ pub fn explosion_gradient_1(x: f32) -> f32 {
     }
 }
 
+/// A sample function defining the gradient of the `Particle`
+///
+/// The visual effect is similar to an explosion
 pub fn explosion_gradient_2(x: f32) -> f32 {
     if x < 0.067 {
         5. * x + 0.1
@@ -64,6 +76,9 @@ pub fn explosion_gradient_2(x: f32) -> f32 {
     }
 }
 
+/// A sample function defining the gradient of the `Particle`
+///
+/// Linear gradient
 pub fn linear_gradient_1(x: f32) -> f32 {
     -0.7 * x + 1.
 }
