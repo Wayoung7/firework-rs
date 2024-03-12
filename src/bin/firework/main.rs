@@ -1,9 +1,13 @@
+mod args;
+
 use std::{
     io::{stdout, Result},
     thread::sleep,
     time::{Duration, SystemTime},
 };
 
+use args::Cli;
+use clap::Parser;
 use crossterm::{
     cursor,
     event::{self, KeyCode},
@@ -15,8 +19,9 @@ use firework::term::Terminal;
 use glam::Vec2;
 
 fn main() -> Result<()> {
+    let cli = Cli::parse();
     let mut stdout = stdout();
-    let (width, height) = terminal::size()?;
+    let (_width, _height) = terminal::size()?;
     let mut is_running = true;
 
     terminal::enable_raw_mode()?;
@@ -24,12 +29,12 @@ fn main() -> Result<()> {
 
     let mut time = SystemTime::now();
     let mut term = Terminal::default();
-    let mut fm = FireworkManager::default()
-        .add_fireworks(demo_firework_comb_1(
-            Vec2::new(30., 66.),
-            Duration::from_secs_f32(0.2),
-        ))
-        .enable_loop();
+    let mut fm = FireworkManager::default().add_fireworks(demo_firework_comb_1(
+        Vec2::new(30., 66.),
+        Duration::from_secs_f32(0.2),
+        cli.gradient,
+    ));
+    fm.set_enable_loop(cli.looping);
     // .add_firework(demo_firework_1(
     //     Vec2::new(20., 15.),
     //     Duration::from_secs_f32(1.),

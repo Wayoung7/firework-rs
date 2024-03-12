@@ -118,6 +118,13 @@ pub struct FireworkConfig {
     /// The input `f32` equals to `time_elapsed`/`life_time`, which returns a `f32` affecting its color gradient
     /// `gradient_scale` returns 1. means`Particle` will have the same colors as defined all over its lifetime
     pub gradient_scale: fn(f32) -> f32,
+    /// Set wheter or not firework has color gradient
+    ///
+    /// # Notes
+    ///
+    /// - It is recommanded that your terminal window is non-transparent and has black bg color to get better visual effects
+    /// - Otherwise set it to `false`
+    pub enable_gradient: bool,
 }
 
 impl Default for FireworkConfig {
@@ -127,6 +134,7 @@ impl Default for FireworkConfig {
             ar_scale: 0.28,
             additional_force: Vec2::ZERO,
             gradient_scale: |_| 1.,
+            enable_gradient: false,
         }
     }
 }
@@ -162,6 +170,11 @@ impl FireworkConfig {
     pub fn with_additional_force(mut self, af: Vec2) -> Self {
         self.additional_force = af;
         self
+    }
+
+    /// Set `enable_gradient`
+    pub fn set_enable_gradient(&mut self, enable_gradient: bool) {
+        self.enable_gradient = enable_gradient;
     }
 }
 
@@ -227,6 +240,10 @@ impl FireworkManager {
         for ele in self.fireworks.iter_mut() {
             ele.reset();
         }
+    }
+
+    pub fn set_enable_loop(&mut self, enable_loop: bool) {
+        self.enable_loop = enable_loop;
     }
 
     /// The main update function

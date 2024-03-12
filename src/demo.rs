@@ -12,7 +12,7 @@ use crate::{
     },
 };
 
-pub fn demo_firework_1(center: Vec2, spawn_after: Duration) -> Firework {
+pub fn demo_firework_1(center: Vec2, spawn_after: Duration, enable_gradient: bool) -> Firework {
     let colors = vec![
         (255, 102, 75),
         (144, 56, 67),
@@ -29,7 +29,8 @@ pub fn demo_firework_1(center: Vec2, spawn_after: Duration) -> Firework {
             *colors.iter().choose(&mut thread_rng()).unwrap(),
         ));
     }
-    let config = FireworkConfig::default().with_gradient_scale(explosion_gradient_1);
+    let mut config = FireworkConfig::default().with_gradient_scale(explosion_gradient_1);
+    config.set_enable_gradient(enable_gradient);
     Firework {
         init_time: SystemTime::now(),
         spawn_after,
@@ -40,7 +41,7 @@ pub fn demo_firework_1(center: Vec2, spawn_after: Duration) -> Firework {
     }
 }
 
-pub fn demo_firework_2(center: Vec2, spawn_after: Duration) -> Firework {
+pub fn demo_firework_2(center: Vec2, spawn_after: Duration, enable_gradient: bool) -> Firework {
     let colors = vec![(250, 216, 68)];
     let mut particles = Vec::new();
     for v in gen_points_circle(100, 600).iter() {
@@ -52,10 +53,11 @@ pub fn demo_firework_2(center: Vec2, spawn_after: Duration) -> Firework {
             *colors.iter().choose(&mut thread_rng()).unwrap(),
         ));
     }
-    let config = FireworkConfig::default()
+    let mut config = FireworkConfig::default()
         .with_gradient_scale(explosion_gradient_2)
         .with_gravity_scale(0.)
         .with_ar_scale(0.15);
+    config.set_enable_gradient(enable_gradient);
     Firework {
         init_time: SystemTime::now(),
         spawn_after,
@@ -66,7 +68,11 @@ pub fn demo_firework_2(center: Vec2, spawn_after: Duration) -> Firework {
     }
 }
 
-pub fn demo_firework_comb_1(start: Vec2, spawn_after: Duration) -> Vec<Firework> {
+pub fn demo_firework_comb_1(
+    start: Vec2,
+    spawn_after: Duration,
+    enable_gradient: bool,
+) -> Vec<Firework> {
     // Ascent of rocket
     let color1 = (255, 255, 235);
     let particles1 = Particle::new(
@@ -76,9 +82,10 @@ pub fn demo_firework_comb_1(start: Vec2, spawn_after: Duration) -> Vec<Firework>
         Duration::from_secs_f32(1.2),
         color1,
     );
-    let config1 = FireworkConfig::default()
+    let mut config1 = FireworkConfig::default()
         .with_ar_scale(0.04)
         .with_gradient_scale(linear_gradient_1);
+    config1.set_enable_gradient(enable_gradient);
 
     // Explosion
     let color2 = vec![
@@ -99,10 +106,11 @@ pub fn demo_firework_comb_1(start: Vec2, spawn_after: Duration) -> Vec<Firework>
             *color2.iter().choose(&mut thread_rng()).unwrap(),
         ));
     }
-    let config2 = FireworkConfig::default()
+    let mut config2 = FireworkConfig::default()
         .with_gradient_scale(explosion_gradient_1)
         .with_ar_scale(0.2)
         .with_gravity_scale(0.3);
+    config2.set_enable_gradient(enable_gradient);
     vec![
         Firework {
             init_time: SystemTime::now(),

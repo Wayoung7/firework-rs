@@ -108,9 +108,13 @@ impl Particle {
     pub fn draw(&self, config: &FireworkConfig) -> HashMap<(isize, isize), (char, (u8, u8, u8))> {
         let mut data = HashMap::new();
         let mut v: Vec<Vec2> = self.trail.clone();
-        let gradient_scale = (config.gradient_scale)(
-            self.time_elapsed.as_secs_f32() / self.config.life_time.as_secs_f32(),
-        );
+        let gradient_scale = if config.enable_gradient {
+            Some((config.gradient_scale)(
+                self.time_elapsed.as_secs_f32() / self.config.life_time.as_secs_f32(),
+            ))
+        } else {
+            None
+        };
         v = v
             .iter()
             .map(|pos| Vec2::new(pos.x * 2., pos.y))
@@ -121,7 +125,11 @@ impl Particle {
                 &path,
                 idx as f32 / self.config.trail_length as f32,
                 self.life_state,
-                shift_gradient(self.color, gradient_scale),
+                if let Some(g) = gradient_scale {
+                    shift_gradient(self.color, g)
+                } else {
+                    self.color
+                },
             )
             .iter()
             .for_each(|(k, v)| {
