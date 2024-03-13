@@ -1,8 +1,12 @@
 use std::time::{Duration, SystemTime};
 
 use glam::Vec2;
+use rand::{seq::IteratorRandom, thread_rng};
 
-use crate::particle::Particle;
+use crate::{
+    particle::{LifeState, Particle, ParticleConfig},
+    utils::init_trail,
+};
 
 /// Struct representing a single firework
 pub struct Firework {
@@ -10,10 +14,13 @@ pub struct Firework {
     pub init_time: SystemTime,
     /// Firework spawns after `spawn_after` from `init_time`
     pub spawn_after: Duration,
+    pub time_elapsed: Duration,
     pub center: Vec2,
-    pub particles: Vec<Particle>,
     pub state: FireworkState,
     pub config: FireworkConfig,
+    pub form: ExplosionForm,
+    pub particles: Vec<ParticleConfig>,
+    pub current_particles: Vec<Particle>,
 }
 
 impl Default for Firework {
@@ -21,10 +28,13 @@ impl Default for Firework {
         Self {
             init_time: SystemTime::now(),
             spawn_after: Duration::ZERO,
+            time_elapsed: Duration::ZERO,
             center: Vec2::ZERO,
-            particles: Vec::new(),
             state: FireworkState::Waiting,
             config: FireworkConfig::default(),
+            form: ExplosionForm::Instant { used: false },
+            particles: Vec::new(),
+            current_particles: Vec::new(),
         }
     }
 }
@@ -39,30 +49,98 @@ impl Firework {
     pub fn update(&mut self, now: SystemTime, delta_time: Duration) {
         // Spawn particles
         if now >= self.init_time + self.spawn_after {
+            self.time_elapsed += delta_time;
+            match &mut self.form {
+                ExplosionForm::Instant { used } => {
+                    if !*used {
+                        self.particles.iter().for_each(|p| {
+                            self.current_particles.push(Particle {
+                                pos: p.init_pos,
+                                vel: p.init_vel,
+                                trail: init_trail(p.init_pos, p.trail_length),
+                                life_state: LifeState::Alive,
+                                time_elapsed: Duration::ZERO,
+                                config: *p,
+                            })
+                        })
+                    }
+                    *used = true;
+                }
+                ExplosionForm::Sustained {
+                    lasts,
+                    time_interval,
+                    timer,
+                } => {
+                    if self.time_elapsed <= *lasts {
+                        if *timer + delta_time <= *time_interval {
+                            *timer += delta_time;
+                        } else {
+                            let n =
+                                (*timer + delta_time).as_millis() / (*time_interval).as_millis();
+                            self.particles
+                                .iter()
+                                .choose_multiple(&mut thread_rng(), n as usize)
+                                .iter()
+                                .for_each(|p| {
+                                    self.current_particles.push(Particle {
+                                        pos: p.init_pos,
+                                        vel: p.init_vel,
+                                        trail: init_trail(p.init_pos, p.trail_length),
+                                        life_state: LifeState::Alive,
+                                        time_elapsed: Duration::ZERO,
+                                        config: **p,
+                                    })
+                                });
+                            *timer = Duration::from_millis(
+                                ((*timer + delta_time).as_millis() % (*time_interval).as_millis())
+                                    as u64,
+                            );
+                        }
+                    }
+                }
+            }
             self.state = FireworkState::Alive;
         }
 
         // Update
-        if self.state == FireworkState::Alive {
-            self.particles
-                .iter_mut()
-                .for_each(|p| p.update(delta_time, &self.config));
-        }
+        // if self.state == FireworkState::Alive {
+        //     self.particles
+        //         .iter_mut()
+        //         .for_each(|p| p.update(delta_time, &self.config));
+        // }
+        self.current_particles
+            .iter_mut()
+            .for_each(|p| p.update(delta_time, &self.config));
 
         // Clean the dead pariticles
-        // let p = self.particles.clone();
-        // self.particles = p
-        //     .into_iter()
-        //     .filter(|p| p.life_state != LifeState::Dead)
-        //     .collect();
+        let p = self.current_particles.clone();
+        self.current_particles = p
+            .into_iter()
+            .filter(|p| p.life_state != LifeState::Dead)
+            .collect();
 
-        if self.state == FireworkState::Alive
-            && self
-                .particles
-                .iter()
-                .fold(true, |acc, x| acc && x.is_dead())
-        {
-            self.state = FireworkState::Gone;
+        // if self.state == FireworkState::Alive
+        //     && self
+        //         .particles
+        //         .iter()
+        //         .fold(true, |acc, x| acc && x.is_dead())
+        // {
+        //     self.state = FireworkState::Gone;
+        // }
+        match self.form {
+            ExplosionForm::Instant { used } => {
+                if used && self.state == FireworkState::Alive && self.current_particles.is_empty() {
+                    self.state = FireworkState::Gone;
+                }
+            }
+            ExplosionForm::Sustained { lasts, .. } => {
+                if self.time_elapsed > lasts
+                    && self.state == FireworkState::Alive
+                    && self.current_particles.is_empty()
+                {
+                    self.state = FireworkState::Gone;
+                }
+            }
         }
     }
 
@@ -71,13 +149,23 @@ impl Firework {
         self.state == FireworkState::Gone
     }
 
-    /// Reset `FireworkManager` to its initial state so that the fireworks show starts again
+    /// Reset `Firework` to its initial state
     pub fn reset(&mut self) {
         self.init_time = SystemTime::now();
         self.state = FireworkState::Waiting;
-        for ele in self.particles.iter_mut() {
-            ele.reset();
+        self.time_elapsed = Duration::ZERO;
+        self.current_particles = Vec::new();
+        match &mut self.form {
+            ExplosionForm::Instant { used } => {
+                *used = false;
+            }
+            ExplosionForm::Sustained { timer, .. } => {
+                *timer = Duration::ZERO;
+            }
         }
+        // for ele in self.particles.iter_mut() {
+        //     ele.reset();
+        // }
     }
 }
 
@@ -102,6 +190,21 @@ impl Default for FireworkState {
     }
 }
 
+/// Enum that represents whether the `Firework` make one instantaneous explosion or continuously emit particles
+#[derive(Debug, PartialEq, Eq)]
+pub enum ExplosionForm {
+    Instant {
+        used: bool,
+    },
+    Sustained {
+        /// `Duration` that the sustained firework will last
+        lasts: Duration,
+        /// Time interval between two particle spawn
+        time_interval: Duration,
+        timer: Duration,
+    },
+}
+
 /// Struct representing the configuration of a single `Firework`
 ///
 /// This applies to all `Particle` in the `Firework`
@@ -111,7 +214,7 @@ pub struct FireworkConfig {
     /// Air resistance scale
     /// Warning: too large or too small `ar_scale` may lead to unexpected behavior of `Particles`
     pub ar_scale: f32,
-    pub additional_force: Vec2,
+    pub additional_force: Box<dyn Fn(&Particle) -> Vec2>,
     /// This field is a function that takes a float between 0 and 1, returns a float representing all `Particle`s' gradient
     ///
     /// `Particle`s' gradient changes according to its elapsed time and lifetime
@@ -132,7 +235,7 @@ impl Default for FireworkConfig {
         Self {
             gravity_scale: 1.,
             ar_scale: 0.28,
-            additional_force: Vec2::ZERO,
+            additional_force: Box::new(move |_| Vec2::ZERO),
             gradient_scale: |_| 1.,
             enable_gradient: false,
         }
@@ -167,8 +270,8 @@ impl FireworkConfig {
     /// Set `additional_force`
     #[inline]
     #[must_use]
-    pub fn with_additional_force(mut self, af: Vec2) -> Self {
-        self.additional_force = af;
+    pub fn with_additional_force(mut self, af: impl Fn(&Particle) -> Vec2 + 'static) -> Self {
+        self.additional_force = Box::new(af);
         self
     }
 

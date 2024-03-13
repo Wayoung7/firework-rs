@@ -1,9 +1,10 @@
 mod args;
 
 use std::{
-    io::{stdout, Result},
+    fs,
+    io::{stdout, Result, Write},
     thread::sleep,
-    time::{Duration, SystemTime},
+    time::{Duration, Instant, SystemTime},
 };
 
 use args::Cli;
@@ -34,7 +35,7 @@ fn main() -> Result<()> {
         Duration::from_secs_f32(0.2),
         cli.gradient,
     ));
-    fm.set_enable_loop(cli.looping);
+    // fm.set_enable_loop(cli.looping);
     // .add_firework(demo_firework_1(
     //     Vec2::new(20., 15.),
     //     Duration::from_secs_f32(1.),

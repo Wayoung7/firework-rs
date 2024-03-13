@@ -24,8 +24,6 @@ pub struct Particle {
     /// Records a `trail_length` of previous positions of the `Particle`
     pub trail: Vec<Vec2>,
     pub life_state: LifeState,
-    /// Color in RGB (from 0 to 255)
-    pub color: (u8, u8, u8),
     /// `Duration` since initialization of this `Particle`
     pub time_elapsed: Duration,
     pub config: ParticleConfig,
@@ -38,7 +36,6 @@ impl Default for Particle {
             vel: Vec2::ZERO,
             trail: Vec::new(),
             life_state: LifeState::Alive,
-            color: (255, 255, 255),
             time_elapsed: Duration::ZERO,
             config: ParticleConfig::default(),
         }
@@ -62,9 +59,8 @@ impl Particle {
             vel,
             trail,
             life_state,
-            color,
             time_elapsed: Duration::ZERO,
-            config: ParticleConfig::new(pos, vel, trail_length, life_time),
+            config: ParticleConfig::new(pos, vel, trail_length, life_time, color),
         }
     }
 
@@ -96,7 +92,7 @@ impl Particle {
             self.vel += TIME_STEP
                 * (Vec2::Y * 10. * config.gravity_scale
                     - self.vel.normalize() * self.vel.length().powi(2) * config.ar_scale
-                    + config.additional_force);
+                    + (config.additional_force)(self));
             self.pos += TIME_STEP * self.vel;
             t += TIME_STEP;
         }
@@ -126,9 +122,9 @@ impl Particle {
                 idx as f32 / self.config.trail_length as f32,
                 self.life_state,
                 if let Some(g) = gradient_scale {
-                    shift_gradient(self.color, g)
+                    shift_gradient(self.config.color, g)
                 } else {
-                    self.color
+                    self.config.color
                 },
             )
             .iter()
@@ -148,6 +144,8 @@ pub struct ParticleConfig {
     pub trail_length: usize,
     /// `Duration` from `Particle`'s initialization to its `Dead`
     pub life_time: Duration,
+    /// Color in RGB (from 0 to 255)
+    pub color: (u8, u8, u8),
 }
 
 impl Default for ParticleConfig {
@@ -157,23 +155,31 @@ impl Default for ParticleConfig {
             init_vel: Vec2::ZERO,
             trail_length: 2,
             life_time: Duration::from_secs(3),
+            color: (255, 255, 255),
         }
     }
 }
 
 impl ParticleConfig {
     /// Create a new `ParticleConfig`
-    pub fn new(init_pos: Vec2, init_vel: Vec2, trail_length: usize, life_time: Duration) -> Self {
+    pub fn new(
+        init_pos: Vec2,
+        init_vel: Vec2,
+        trail_length: usize,
+        life_time: Duration,
+        color: (u8, u8, u8),
+    ) -> Self {
         Self {
             init_pos,
             init_vel,
             trail_length,
             life_time,
+            color,
         }
     }
 }
 
-fn set_rand_char(
+pub fn set_rand_char(
     path: &Vec<(isize, isize)>,
     density: f32,
     life_state: LifeState,
@@ -193,7 +199,7 @@ fn set_rand_char(
     data
 }
 
-fn construct_line(a: Vec2, b: Vec2) -> Vec<(isize, isize)> {
+pub fn construct_line(a: Vec2, b: Vec2) -> Vec<(isize, isize)> {
     const STEP: f32 = 0.2;
     let (x0, y0) = (a.x, a.y);
     let (x1, y1) = (b.x, b.y);
@@ -239,7 +245,7 @@ fn construct_line(a: Vec2, b: Vec2) -> Vec<(isize, isize)> {
     path
 }
 
-fn shift_gradient(color: (u8, u8, u8), scale: f32) -> (u8, u8, u8) {
+pub fn shift_gradient(color: (u8, u8, u8), scale: f32) -> (u8, u8, u8) {
     (
         (color.0 as f32 * scale) as u8,
         (color.1 as f32 * scale) as u8,
@@ -260,7 +266,7 @@ fn cal_life_state(life_time: Duration, current_elapsed: Duration) -> LifeState {
     }
 }
 
-fn get_char_alive(density: f32) -> char {
+pub fn get_char_alive(density: f32) -> char {
     let palette = if density < 0.3 {
         "`'. "
     } else if density < 0.5 {
@@ -273,7 +279,7 @@ fn get_char_alive(density: f32) -> char {
     palette.chars().choose(&mut thread_rng()).unwrap()
 }
 
-fn get_char_declining(density: f32) -> char {
+pub fn get_char_declining(density: f32) -> char {
     let palette = if density < 0.2 {
         "` '. "
     } else if density < 0.6 {
@@ -286,7 +292,7 @@ fn get_char_declining(density: f32) -> char {
     palette.chars().choose(&mut thread_rng()).unwrap()
 }
 
-fn get_char_dying(density: f32) -> char {
+pub fn get_char_dying(density: f32) -> char {
     let palette = if density < 0.6 {
         ".  ,`.    ^,' . "
     } else {

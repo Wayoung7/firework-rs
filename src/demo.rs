@@ -5,7 +5,7 @@ use rand::{seq::IteratorRandom, thread_rng, Rng};
 
 use crate::{
     fireworks::{Firework, FireworkConfig},
-    particle::Particle,
+    particle::{Particle, ParticleConfig},
     utils::{
         explosion_gradient_1, explosion_gradient_2, gen_points_circle, gen_points_circle_normal,
         linear_gradient_1,
@@ -21,7 +21,7 @@ pub fn demo_firework_1(center: Vec2, spawn_after: Duration, enable_gradient: boo
     ];
     let mut particles = Vec::new();
     for v in gen_points_circle(300, 45).iter() {
-        particles.push(Particle::new(
+        particles.push(ParticleConfig::new(
             center,
             *v,
             thread_rng().gen_range(23..43),
@@ -45,7 +45,7 @@ pub fn demo_firework_2(center: Vec2, spawn_after: Duration, enable_gradient: boo
     let colors = vec![(250, 216, 68)];
     let mut particles = Vec::new();
     for v in gen_points_circle(100, 600).iter() {
-        particles.push(Particle::new(
+        particles.push(ParticleConfig::new(
             center,
             *v,
             thread_rng().gen_range(5..8),
@@ -75,7 +75,7 @@ pub fn demo_firework_comb_1(
 ) -> Vec<Firework> {
     // Ascent of rocket
     let color1 = (255, 255, 235);
-    let particles1 = Particle::new(
+    let particles1 = ParticleConfig::new(
         start,
         Vec2::NEG_Y * 160.,
         6,
@@ -98,7 +98,7 @@ pub fn demo_firework_comb_1(
     let center2 = start + Vec2::NEG_Y * 53.;
     let mut particles2 = Vec::new();
     for v in gen_points_circle_normal(350., 160).iter() {
-        particles2.push(Particle::new(
+        particles2.push(ParticleConfig::new(
             center2,
             *v,
             thread_rng().gen_range(23..43),

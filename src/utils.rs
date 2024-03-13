@@ -7,6 +7,12 @@ pub fn round(input: Vec2) -> (isize, isize) {
     (input.x.round() as isize, input.y.round() as isize)
 }
 
+pub fn init_trail(init_pos: Vec2, n: usize) -> Vec<Vec2> {
+    let mut res = Vec::new();
+    (0..n).for_each(|_| res.push(init_pos));
+    res
+}
+
 /// Generate random `Vec2` within a circle range
 pub fn gen_points_circle(radius: isize, n: usize) -> Vec<Vec2> {
     let mut res = Vec::new();
@@ -38,6 +44,20 @@ pub fn gen_points_circle_normal(radius: f32, n: usize) -> Vec<Vec2> {
         }
         if x.powi(2) + y.powi(2) <= radius.powi(2) {
             res.push(Vec2::new(x, y));
+        }
+    }
+    res
+}
+
+/// Generate random `Vec2` within a fan-shape range
+pub fn gen_points_fan(radius: f32, n: usize, st_angle: f32, ed_angle: f32) -> Vec<Vec2> {
+    let mut res = Vec::new();
+    while res.len() < n {
+        let x = rand::thread_rng().gen_range(-radius..=radius);
+        let y = rand::thread_rng().gen_range(-radius..=radius);
+        let t = y.atan2(x);
+        if t <= ed_angle && t >= st_angle && x.powi(2) + y.powi(2) <= radius.powi(2) {
+            res.push(Vec2::new(x, -y));
         }
     }
     res

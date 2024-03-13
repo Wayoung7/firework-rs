@@ -21,3 +21,9 @@ name = "firework"
 path = "src/lib.rs"
 crate-type = ["lib"]
 bench = false
+
+[[example]]
+name = "fountain"
+
+[[example]]
+name = "vortex"
