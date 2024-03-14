@@ -1,9 +1,14 @@
 [package]
 name = "firework-rs"
 version = "0.1.0"
+authors = ["Wayoung7 <https://github.com/Wayoung7>"]
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+description = "A cross-platform ascii-art firework simulator in terminal"
+readme = "README.md"
+repository = "https://github.com/Wayoung7/firework-rs"
+license-file = "LICENSE"
+keywords = ["ascii", "firework", "terminal", "cli", "simulation"]
+categories = ["command-line-utilities"]
 
 [dependencies]
 clap = { version = "4.5.2", features = ["derive"] }
@@ -17,7 +22,7 @@ name = "firework"
 path = "src/bin/firework/main.rs"
 
 [lib]
-name = "firework"
+name = "firework_rs"
 path = "src/lib.rs"
 crate-type = ["lib"]
 bench = false
@@ -27,3 +32,6 @@ name = "fountain"
 
 [[example]]
 name = "vortex"
+
+[[example]]
+name = "heart"

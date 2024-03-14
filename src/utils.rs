@@ -31,7 +31,8 @@ pub fn gen_points_circle(radius: isize, n: usize) -> Vec<Vec2> {
 /// Points closer to the center will be denser
 pub fn gen_points_circle_normal(radius: f32, n: usize) -> Vec<Vec2> {
     let mut rng = rand::thread_rng();
-    let normal = rand_distr::Normal::new(0., radius / 9.).unwrap();
+    let normal =
+        rand_distr::Normal::new(0., radius / 9.).expect("Unable to generate normal distribution.");
     let mut res = Vec::new();
     while res.len() < n {
         let x = normal.sample(&mut rng);

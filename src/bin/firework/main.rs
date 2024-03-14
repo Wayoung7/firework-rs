@@ -14,9 +14,9 @@ use crossterm::{
     event::{self, KeyCode},
     execute, terminal,
 };
-use firework::demo::{demo_firework_1, demo_firework_2, demo_firework_comb_1};
-use firework::fireworks::FireworkManager;
-use firework::term::Terminal;
+use firework_rs::demo::{demo_firework_1, demo_firework_2, demo_firework_comb_1};
+use firework_rs::fireworks::FireworkManager;
+use firework_rs::term::Terminal;
 use glam::Vec2;
 
 fn main() -> Result<()> {
@@ -50,12 +50,6 @@ fn main() -> Result<()> {
     // ));
 
     while is_running {
-        let delta_time = SystemTime::now().duration_since(time).unwrap();
-        fm.update(time, delta_time);
-        time = SystemTime::now();
-        term.render(&fm);
-        term.print(&mut stdout);
-
         if event::poll(Duration::ZERO)? {
             match event::read()? {
                 event::Event::Key(e) => {
@@ -63,9 +57,19 @@ fn main() -> Result<()> {
                         is_running = false;
                     }
                 }
+                event::Event::Resize(_, _) => {
+                    fm.reset();
+                    term.reinit();
+                }
                 _ => {}
             };
         }
+
+        let delta_time = SystemTime::now().duration_since(time).unwrap();
+        fm.update(time, delta_time);
+        time = SystemTime::now();
+        term.render(&fm);
+        term.print(&mut stdout);
 
         if delta_time < Duration::from_secs_f32(0.05) {
             let rem = Duration::from_secs_f32(0.05) - delta_time;

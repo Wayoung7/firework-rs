@@ -99,41 +99,6 @@ impl Particle {
         self.trail.remove(0);
         self.trail.push(self.pos);
     }
-
-    /// Return pixel data of the current stage of `Particle`
-    pub fn draw(&self, config: &FireworkConfig) -> HashMap<(isize, isize), (char, (u8, u8, u8))> {
-        let mut data = HashMap::new();
-        let mut v: Vec<Vec2> = self.trail.clone();
-        let gradient_scale = if config.enable_gradient {
-            Some((config.gradient_scale)(
-                self.time_elapsed.as_secs_f32() / self.config.life_time.as_secs_f32(),
-            ))
-        } else {
-            None
-        };
-        v = v
-            .iter()
-            .map(|pos| Vec2::new(pos.x * 2., pos.y))
-            .collect::<Vec<_>>();
-        v.windows(2).enumerate().for_each(|(idx, v)| {
-            let path = construct_line(v[0], v[1]);
-            set_rand_char(
-                &path,
-                idx as f32 / self.config.trail_length as f32,
-                self.life_state,
-                if let Some(g) = gradient_scale {
-                    shift_gradient(self.config.color, g)
-                } else {
-                    self.config.color
-                },
-            )
-            .iter()
-            .for_each(|(k, v)| {
-                data.insert(*k, *v);
-            });
-        });
-        data
-    }
 }
 
 /// Struct that defines the configuration of `Particle`
@@ -179,80 +144,6 @@ impl ParticleConfig {
     }
 }
 
-pub fn set_rand_char(
-    path: &Vec<(isize, isize)>,
-    density: f32,
-    life_state: LifeState,
-    color: (u8, u8, u8),
-) -> HashMap<(isize, isize), (char, (u8, u8, u8))> {
-    let mut data = HashMap::new();
-    path.iter().for_each(|p| {
-        if let Some(c) = match life_state {
-            LifeState::Alive => Some(get_char_alive(density)),
-            LifeState::Declining => Some(get_char_declining(density)),
-            LifeState::Dying => Some(get_char_dying(density)),
-            LifeState::Dead => None,
-        } {
-            data.insert(*p, (c, color));
-        }
-    });
-    data
-}
-
-pub fn construct_line(a: Vec2, b: Vec2) -> Vec<(isize, isize)> {
-    const STEP: f32 = 0.2;
-    let (x0, y0) = (a.x, a.y);
-    let (x1, y1) = (b.x, b.y);
-    let mut path = Vec::new();
-    let mut x = x0;
-    let mut y = y0;
-    let slope = (y1 - y0) / (x1 - x0);
-    let dx = if x0 == x1 {
-        0.
-    } else if x1 > x0 {
-        1.
-    } else {
-        -1.
-    };
-    let dy = if y0 == y1 {
-        0.
-    } else if y1 > y0 {
-        1.
-    } else {
-        -1.
-    };
-    let mut ds = distance_squared(a, b) + f32::EPSILON;
-    path.push((x0.round() as isize, y0.round() as isize));
-    if (x1 - x0).abs() >= (y1 - y0).abs() {
-        while distance_squared(Vec2::new(x, y), b) <= ds {
-            if *path.last().unwrap() != (x.round() as isize, y.round() as isize) {
-                path.push((x.round() as isize, y.round() as isize));
-                ds = distance_squared(Vec2::new(x, y), b);
-            }
-            x += dx * STEP;
-            y += dy * (STEP * slope).abs();
-        }
-    } else {
-        while distance_squared(Vec2::new(x, y), b) <= ds {
-            if *path.last().unwrap() != (x.round() as isize, y.round() as isize) {
-                path.push((x.round() as isize, y.round() as isize));
-                ds = distance_squared(Vec2::new(x, y), b);
-            }
-            y += dy * STEP;
-            x += dx * (STEP / slope).abs();
-        }
-    }
-    path
-}
-
-pub fn shift_gradient(color: (u8, u8, u8), scale: f32) -> (u8, u8, u8) {
-    (
-        (color.0 as f32 * scale) as u8,
-        (color.1 as f32 * scale) as u8,
-        (color.2 as f32 * scale) as u8,
-    )
-}
-
 fn cal_life_state(life_time: Duration, current_elapsed: Duration) -> LifeState {
     let p = current_elapsed.as_millis() as f32 / life_time.as_millis() as f32;
     if p < 0.4 {
@@ -264,39 +155,4 @@ fn cal_life_state(life_time: Duration, current_elapsed: Duration) -> LifeState {
     } else {
         LifeState::Dead
     }
-}
-
-pub fn get_char_alive(density: f32) -> char {
-    let palette = if density < 0.3 {
-        "`'. "
-    } else if density < 0.5 {
-        "/\\|()1{}[]?"
-    } else if density < 0.7 {
-        "oahkbdpqwmZO0QLCJUYXzcvunxrjft*"
-    } else {
-        "$@B%8&WM#"
-    };
-    palette.chars().choose(&mut thread_rng()).unwrap()
-}
-
-pub fn get_char_declining(density: f32) -> char {
-    let palette = if density < 0.2 {
-        "` '. "
-    } else if density < 0.6 {
-        "-_ +~<> i!lI;:,\"^"
-    } else if density < 0.85 {
-        "/\\| ()1{}[ ]?"
-    } else {
-        "xrjft*"
-    };
-    palette.chars().choose(&mut thread_rng()).unwrap()
-}
-
-pub fn get_char_dying(density: f32) -> char {
-    let palette = if density < 0.6 {
-        ".  ,`.    ^,' . "
-    } else {
-        " /\\| ( )  1{} [  ]?i !l I;: ,\"^ "
-    };
-    palette.chars().choose(&mut thread_rng()).unwrap()
 }

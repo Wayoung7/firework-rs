@@ -1,9 +1,7 @@
 use std::{
-    f32::consts::PI,
-    fs,
-    io::{stdout, Result, Write},
+    io::{stdout, Result},
     thread::sleep,
-    time::{Duration, Instant, SystemTime},
+    time::{Duration, SystemTime},
 };
 
 use crossterm::{
@@ -11,11 +9,11 @@ use crossterm::{
     event::{self, KeyCode},
     execute, terminal,
 };
-use firework::{
+use firework_rs::{
     fireworks::{ExplosionForm, Firework, FireworkConfig, FireworkManager},
-    particle::{Particle, ParticleConfig},
+    particle::ParticleConfig,
     term::Terminal,
-    utils::{gen_points_circle, gen_points_fan},
+    utils::gen_points_circle,
 };
 use glam::Vec2;
 use rand::{seq::IteratorRandom, thread_rng, Rng};
@@ -36,13 +34,6 @@ fn main() -> Result<()> {
     )));
 
     while is_running {
-        let delta_time = SystemTime::now().duration_since(time).unwrap();
-        fm.update(time, delta_time);
-        time = SystemTime::now();
-
-        term.render(&fm);
-        term.print(&mut stdout);
-
         if event::poll(Duration::ZERO)? {
             match event::read()? {
                 event::Event::Key(e) => {
@@ -50,9 +41,20 @@ fn main() -> Result<()> {
                         is_running = false;
                     }
                 }
+                event::Event::Resize(_, _) => {
+                    fm.reset();
+                    term.reinit();
+                }
                 _ => {}
             };
         }
+
+        let delta_time = SystemTime::now().duration_since(time).unwrap();
+        fm.update(time, delta_time);
+        time = SystemTime::now();
+
+        term.render(&fm);
+        term.print(&mut stdout);
 
         if delta_time < Duration::from_secs_f32(0.05) {
             let rem = Duration::from_secs_f32(0.05) - delta_time;
@@ -68,10 +70,11 @@ fn main() -> Result<()> {
 
 fn gen_vortex_firework(center: Vec2) -> Firework {
     let colors = vec![
-        (233, 232, 237),
-        (254, 142, 130),
-        (200, 27, 72),
-        (86, 18, 31),
+        (6, 55, 63),
+        (24, 90, 96),
+        (47, 123, 119),
+        (92, 174, 166),
+        (200, 255, 255),
     ];
     let mut particles = Vec::new();
     for p in gen_points_circle(30, 45).iter() {

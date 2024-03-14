@@ -2,13 +2,12 @@ use std::io::{Stdout, Write};
 
 use crossterm::{cursor::MoveTo, queue, style, terminal};
 use glam::Vec2;
+use rand::{seq::IteratorRandom, thread_rng};
 
 use crate::{
     fireworks::{FireworkManager, FireworkState},
-    particle::{
-        construct_line, get_char_alive, get_char_declining, get_char_dying, shift_gradient,
-        LifeState,
-    },
+    particle::LifeState,
+    utils::distance_squared,
 };
 
 /// Wrap a character with color
@@ -33,7 +32,7 @@ pub struct Terminal {
 
 impl Default for Terminal {
     fn default() -> Self {
-        let size = terminal::size().unwrap();
+        let size = terminal::size().expect("Fail to get terminal size.");
         let mut screen = Vec::new();
         (0..size.1).for_each(|_| {
             let mut line = Vec::new();
@@ -50,9 +49,26 @@ impl Default for Terminal {
 }
 
 impl Terminal {
+    pub fn reinit(&mut self) {
+        let size = terminal::size().expect("Fail to get terminal size.");
+        let mut screen = Vec::new();
+        (0..size.1).for_each(|_| {
+            let mut line = Vec::new();
+            (0..size.0).for_each(|_| {
+                line.push(Char {
+                    text: ' ',
+                    color: style::Color::White,
+                })
+            });
+            screen.push(line);
+        });
+        self.screen = screen;
+        self.size = size;
+    }
+
     /// Clear the terminal screen by setting all the characters in terminal to space
     pub fn clear_screen(&mut self) {
-        let size = terminal::size().unwrap();
+        let size = terminal::size().expect("Fail to get terminal size.");
         let mut s = Vec::new();
         (0..size.1).for_each(|_| {
             let mut line = Vec::new();
@@ -77,36 +93,14 @@ impl Terminal {
                     style::SetForegroundColor(c.color),
                     style::Print(c.text)
                 )
-                .unwrap()
+                .expect("Std io error.")
             });
         });
-        w.flush().unwrap();
+        w.flush().expect("Std io error.");
     }
 
     /// Write the rendering data of all `Fireworks` and `Particles` to `Terminal`
     pub fn render(&mut self, fm: &FireworkManager) {
-        // self.clear_screen();
-        // for firework in fireworks.fireworks.iter() {
-        //     if firework.state == FireworkState::Alive {
-        //         for particle in firework.current_particles.iter() {
-        //             particle
-        //                 .draw(&firework.config)
-        //                 .iter()
-        //                 .for_each(|((x, y), (char, color))| {
-        //                     if self.inside((*x, *y)) {
-        //                         self.screen[*y as usize][*x as usize] = Char::new(
-        //                             *char,
-        //                             style::Color::Rgb {
-        //                                 r: color.0,
-        //                                 g: color.1,
-        //                                 b: color.2,
-        //                             },
-        //                         );
-        //                     }
-        //                 });
-        //         }
-        //     }
-        // }
         self.clear_screen();
         for firework in fm.fireworks.iter() {
             if firework.state == FireworkState::Alive {
@@ -171,4 +165,102 @@ impl Terminal {
             false
         }
     }
+}
+
+fn construct_line(a: Vec2, b: Vec2) -> Vec<(isize, isize)> {
+    const STEP: f32 = 0.2;
+    let (x0, y0) = (a.x, a.y);
+    let (x1, y1) = (b.x, b.y);
+    let mut path = Vec::new();
+    let mut x = x0;
+    let mut y = y0;
+    let slope = (y1 - y0) / (x1 - x0);
+    let dx = if x0 == x1 {
+        0.
+    } else if x1 > x0 {
+        1.
+    } else {
+        -1.
+    };
+    let dy = if y0 == y1 {
+        0.
+    } else if y1 > y0 {
+        1.
+    } else {
+        -1.
+    };
+    let mut ds = distance_squared(a, b) + f32::EPSILON;
+    path.push((x0.round() as isize, y0.round() as isize));
+    if (x1 - x0).abs() >= (y1 - y0).abs() {
+        while distance_squared(Vec2::new(x, y), b) <= ds {
+            if *path.last().unwrap() != (x.round() as isize, y.round() as isize) {
+                path.push((x.round() as isize, y.round() as isize));
+                ds = distance_squared(Vec2::new(x, y), b);
+            }
+            x += dx * STEP;
+            y += dy * (STEP * slope).abs();
+        }
+    } else {
+        while distance_squared(Vec2::new(x, y), b) <= ds {
+            if *path.last().unwrap() != (x.round() as isize, y.round() as isize) {
+                path.push((x.round() as isize, y.round() as isize));
+                ds = distance_squared(Vec2::new(x, y), b);
+            }
+            y += dy * STEP;
+            x += dx * (STEP / slope).abs();
+        }
+    }
+    path
+}
+
+fn shift_gradient(color: (u8, u8, u8), scale: f32) -> (u8, u8, u8) {
+    (
+        (color.0 as f32 * scale) as u8,
+        (color.1 as f32 * scale) as u8,
+        (color.2 as f32 * scale) as u8,
+    )
+}
+
+fn get_char_alive(density: f32) -> char {
+    let palette = if density < 0.3 {
+        "`'. "
+    } else if density < 0.5 {
+        "/\\|()1{}[]?"
+    } else if density < 0.7 {
+        "oahkbdpqwmZO0QLCJUYXzcvunxrjft*"
+    } else {
+        "$@B%8&WM#"
+    };
+    palette
+        .chars()
+        .choose(&mut thread_rng())
+        .expect("Fail to choose character.")
+}
+
+fn get_char_declining(density: f32) -> char {
+    let palette = if density < 0.2 {
+        "` '. "
+    } else if density < 0.6 {
+        "-_ +~<> i!lI;:,\"^"
+    } else if density < 0.85 {
+        "/\\| ()1{}[ ]?"
+    } else {
+        "xrjft*"
+    };
+    palette
+        .chars()
+        .choose(&mut thread_rng())
+        .expect("Fail to choose character.")
+}
+
+fn get_char_dying(density: f32) -> char {
+    let palette = if density < 0.6 {
+        ".  ,`.    ^,' . "
+    } else {
+        " /\\| ( )  1{} [  ]?i !l I;: ,\"^ "
+    };
+    palette
+        .chars()
+        .choose(&mut thread_rng())
+        .expect("Fail to choose character.")
 }
