@@ -160,12 +160,18 @@ cargo run --example <EXAMPLE-NAME>
 ```
 
 **Example-name** contains:
- - fountain
+
+fountain
+
 ![fountain](https://raw.githubusercontent.com/Wayoung7/firework-rs/master/gif/fountain.GIF)
- - vortex
- - ![vortex](https://raw.githubusercontent.com/Wayoung7/firework-rs/master/gif/vortex.GIF)
- - heart
- - ![heart](https://raw.githubusercontent.com/Wayoung7/firework-rs/master/gif/heart.GIF)
+
+vortex
+
+![vortex](https://raw.githubusercontent.com/Wayoung7/firework-rs/master/gif/vortex.GIF)
+
+heart
+
+![heart](https://raw.githubusercontent.com/Wayoung7/firework-rs/master/gif/heart.GIF)
 
 ## Compatibility
 
