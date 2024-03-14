@@ -163,15 +163,15 @@ cargo run --example <EXAMPLE-NAME>
 
 fountain
 
-![fountain](https://raw.githubusercontent.com/Wayoung7/firework-rs/master/gif/fountain.GIF)
+![fountain](gif/fountain.GIF)
 
 vortex
 
-![vortex](https://raw.githubusercontent.com/Wayoung7/firework-rs/master/gif/vortex.GIF)
+![vortex](gif/vortex.GIF)
 
 heart
 
-![heart](https://raw.githubusercontent.com/Wayoung7/firework-rs/master/gif/heart.GIF)
+![heart](gif/heart.GIF)
 
 ## Compatibility
 
