@@ -171,7 +171,7 @@ vortex
 
 heart
 
-![heart](gif/heart.GIF)
+![heart](gif/heart.gif)
 
 ## Compatibility
 
