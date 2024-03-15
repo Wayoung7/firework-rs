@@ -7,7 +7,7 @@ description = "A cross-platform ascii-art firework simulator in terminal"
 readme = "README.md"
 repository = "https://github.com/Wayoung7/firework-rs"
 license-file = "LICENSE"
-keywords = ["ascii", "fireworks", "terminal", "cli"]
+keywords = ["ascii", "fireworks", "terminal", "cli", "simulation"]
 categories = ["command-line-utilities"]
 
 [dependencies]
