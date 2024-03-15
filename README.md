@@ -1,5 +1,8 @@
-![demo_0](gif/demo_0.gif)
 <h1 align="center">
+<br>
+<img src="gif/demo_0.gif" alt="gif" width="800">
+<br>
+<br>
 Firework-rs
 <br>
 </h1>
@@ -170,17 +173,23 @@ cargo run --example <EXAMPLE-NAME>
 
 **Example-name** contains:
 
-fountain
+1. fountain
 
-![fountain](gif/fountain.gif)
+<h4 align="center">
+<img src="gif/fountain.gif" alt="gif" width="400">
+</h4>
 
-vortex
+2. vortex
 
-![vortex](gif/vortex.gif)
+<h4 align="center">
+<img src="gif/vortex.gif" alt="gif" width="400">
+</h4>
 
-heart
+3. heart
 
-![heart](gif/heart.gif)
+<h4 align="center">
+<img src="gif/heart.gif" alt="gif" width="400">
+</h4>
 
 ## Compatibility
 
