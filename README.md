@@ -35,7 +35,7 @@ cargo install firework-rs
 firework -d 0
 ```
 
-The binary now has **4 demos**, from **0** to **3**. 
+The binary now has **4 demos**, from **0** to **4**. 
 
 ## Exit
 
