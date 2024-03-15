@@ -9,6 +9,7 @@ repository = "https://github.com/Wayoung7/firework-rs"
 license-file = "LICENSE"
 keywords = ["ascii", "fireworks", "terminal", "cli", "simulation"]
 categories = ["command-line-utilities"]
+exclude = ["gif/*"]
 
 [dependencies]
 clap = { version = "4.5.2", features = ["derive"] }
