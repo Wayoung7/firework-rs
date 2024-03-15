@@ -1,6 +1,6 @@
 <h1 align="center">
 <br>
-<img src="gif/demo_0.gif" alt="gif" width="800">
+<img src="https://raw.githubusercontent.com/Wayoung7/firework-rs/46e5574f61460ce9796a1dbf0e5885af88685d55/gif/demo_0.gif" alt="gif" width="800">
 <br>
 <br>
 Firework-rs
