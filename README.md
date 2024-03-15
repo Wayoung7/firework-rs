@@ -70,7 +70,7 @@ Options:
 If you have installed the binary:
 
 ```
-firework -l -g -d 2
+firework -l -g -d 1
 ```
 
 If you have not installed the binary:
@@ -78,7 +78,7 @@ If you have not installed the binary:
 First `cd` into the project root directory, and then run:
 
 ```
-cargo run --release -- -l -g -d 2
+cargo run --release -- -l -g -d 1
 ```
 
 ## Use the Library
