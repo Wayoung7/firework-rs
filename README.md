@@ -1,6 +1,6 @@
 <h1 align="center">
 <br>
-<img src="https://raw.githubusercontent.com/Wayoung7/firework-rs/46e5574f61460ce9796a1dbf0e5885af88685d55/gif/demo_0.gif" alt="gif" width="800">
+<img src="https://raw.githubusercontent.com/Wayoung7/firework-rs/master/gif/demo_0.gif" alt="gif" width="800">
 <br>
 <br>
 Firework-rs
@@ -173,22 +173,22 @@ cargo run --example <EXAMPLE-NAME>
 
 **Example-name** contains:
 
-1. fountain
+fountain
 
 <h4 align="center">
-<img src="gif/fountain.gif" alt="gif" width="600">
+<img src="https://raw.githubusercontent.com/Wayoung7/firework-rs/master/gif/fountain.gif" alt="gif" width="600">
 </h4>
 
-2. vortex
+vortex
 
 <h4 align="center">
-<img src="gif/vortex.gif" alt="gif" width="600">
+<img src="https://raw.githubusercontent.com/Wayoung7/firework-rs/master/gif/vortex.gif" alt="gif" width="600">
 </h4>
 
-3. heart
+heart
 
 <h4 align="center">
-<img src="gif/heart.gif" alt="gif" width="600">
+<img src="https://raw.githubusercontent.com/Wayoung7/firework-rs/master/gif/heart.gif" alt="gif" width="600">
 </h4>
 
 ## Compatibility
