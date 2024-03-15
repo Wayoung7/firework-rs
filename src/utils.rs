@@ -99,6 +99,17 @@ pub fn explosion_gradient_2(x: f32) -> f32 {
 
 /// A sample function defining the gradient of the `Particle`
 ///
+/// The visual effect is similar to an explosion, darkar than `explosion_gradient_1`
+pub fn explosion_gradient_3(x: f32) -> f32 {
+    if x < 0.087 {
+        150. * x.powi(2) * 0.6
+    } else {
+        (-0.8 * x + 1.2) * 0.6
+    }
+}
+
+/// A sample function defining the gradient of the `Particle`
+///
 /// Linear gradient
 pub fn linear_gradient_1(x: f32) -> f32 {
     -0.7 * x + 1.

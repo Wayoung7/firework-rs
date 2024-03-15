@@ -1,9 +1,8 @@
-use std::{collections::HashMap, time::Duration};
+use std::time::Duration;
 
 use glam::Vec2;
-use rand::{seq::IteratorRandom, thread_rng};
 
-use crate::{fireworks::FireworkConfig, utils::distance_squared};
+use crate::fireworks::FireworkConfig;
 
 /// The struct represents the states in a `Particle`'s lifetime
 ///

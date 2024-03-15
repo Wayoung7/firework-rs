@@ -1,10 +1,17 @@
+![demo_0](gif/demo_0.gif)
 <h1 align="center">
-<br>
 Firework-rs
 <br>
 </h1>
 
 Firework-rs is a cross-platform ascii-art firework simulator in terminal. Run the binary or use the library to create your own firework, and just enjoy the beautiful fireworks in your terminal!
+
+## Features
+
+ - Colorful ASCII art firework
+ - Smooth animation
+ - Customizable fireworks
+ - Simple particle system letting you make fireworks but not only fireworks
 
 ## Try Out a Demo
 
@@ -15,15 +22,17 @@ Then, simply run the following commands:
 ```
 git clone https://github.com/Wayoung7/firework-rs.git
 cd firework-rs
-cargo run --release -- --demo 1
+cargo run --release -- --demo 0
 ```
 
 or to install globally on your computer:
 
 ```
 cargo install firework-rs
-firework --demo 1
+firework --demo 0
 ```
+
+The binary now has **4 demos**, from **0** to **3**. 
 
 ## Exit
 
@@ -163,11 +172,11 @@ cargo run --example <EXAMPLE-NAME>
 
 fountain
 
-![fountain](gif/fountain.GIF)
+![fountain](gif/fountain.gif)
 
 vortex
 
-![vortex](gif/vortex.GIF)
+![vortex](gif/vortex.gif)
 
 heart
 
@@ -184,7 +193,7 @@ This crate uses [crossterm](https://github.com/crossterm-rs/crossterm) as backen
 
 This crate supports all UNIX terminals and Windows terminals down to Windows 7. however, not all of the terminals have been tested and has good viusal quality. 
 
-It is recommanded to use terminal that has GPU rendering acceleration, like [Kitty](https://github.com/kovidgoyal/kitty) (which I use) and [Alacritty](https://github.com/alacritty/alacritty). Make sure your terminal does not have extra color theme or adjustment. If you enable gradient in the program, make sure the terminal window is **non-transparent** and has **black background**.
+It is recommanded to use terminal that has GPU rendering acceleration, like [Kitty](https://github.com/kovidgoyal/kitty) and [Alacritty](https://github.com/alacritty/alacritty). Make sure your terminal does not have extra color theme or adjustment. If you enable gradient in the program, make sure the terminal window is **non-transparent** and has **black background**.
 
 ## Help
 

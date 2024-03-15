@@ -1,10 +1,9 @@
 mod args;
 
 use std::{
-    fs,
-    io::{stdout, Result, Write},
+    io::{stdout, Result},
     thread::sleep,
-    time::{Duration, Instant, SystemTime},
+    time::{Duration, SystemTime},
 };
 
 use args::Cli;
@@ -14,40 +13,45 @@ use crossterm::{
     event::{self, KeyCode},
     execute, terminal,
 };
-use firework_rs::demo::{demo_firework_1, demo_firework_2, demo_firework_comb_1};
+use firework_rs::demo::{demo_firework_2, demo_firework_comb_0, demo_firework_comb_1};
 use firework_rs::fireworks::FireworkManager;
 use firework_rs::term::Terminal;
 use glam::Vec2;
 
 fn main() -> Result<()> {
-    let cli = Cli::parse();
-    let mut stdout = stdout();
-    let (_width, _height) = terminal::size()?;
     let mut is_running = true;
+    let cli = Cli::parse();
+    let (_width, _height) = terminal::size()?;
+    let mut fm = match cli.demo {
+        0 => FireworkManager::default().add_fireworks(demo_firework_comb_0(
+            Vec2::new(_width as f32 / 4., _height as f32 / 2.),
+            Duration::from_secs_f32(0.7),
+            cli.gradient,
+        )),
+        1 => FireworkManager::default().add_fireworks(demo_firework_comb_1(
+            Vec2::new(_width as f32 / 4., 66.),
+            Duration::from_secs_f32(0.2),
+            cli.gradient,
+        )),
+        2 => FireworkManager::default().add_firework(demo_firework_2(
+            Vec2::new(_width as f32 / 4., _height as f32 / 2.),
+            Duration::from_secs_f32(0.7),
+            cli.gradient,
+        )),
+        _ => {
+            println!("Demo number error\n");
+            is_running = false;
+            FireworkManager::default()
+        }
+    };
+    fm.set_enable_loop(cli.looping);
 
+    let mut stdout = stdout();
     terminal::enable_raw_mode()?;
     execute!(stdout, terminal::EnterAlternateScreen, cursor::Hide)?;
 
     let mut time = SystemTime::now();
     let mut term = Terminal::default();
-    let mut fm = FireworkManager::default().add_fireworks(demo_firework_comb_1(
-        Vec2::new(30., 66.),
-        Duration::from_secs_f32(0.2),
-        cli.gradient,
-    ));
-    // fm.set_enable_loop(cli.looping);
-    // .add_firework(demo_firework_1(
-    //     Vec2::new(20., 15.),
-    //     Duration::from_secs_f32(1.),
-    // ))
-    // .add_firework(demo_firework_2(
-    //     Vec2::new(40., 25.),
-    //     Duration::from_secs_f32(1.3),
-    // ))
-    // .add_firework(demo_firework_1(
-    //     Vec2::new(15., 45.),
-    //     Duration::from_secs_f32(2.),
-    // ));
 
     while is_running {
         if event::poll(Duration::ZERO)? {

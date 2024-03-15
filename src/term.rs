@@ -17,6 +17,7 @@ pub struct Char {
     pub color: style::Color,
 }
 
+#[allow(unused)]
 impl Char {
     /// Create a new `Char`
     fn new(text: char, color: style::Color) -> Self {
