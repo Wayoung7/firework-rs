@@ -1,3 +1,7 @@
+//! `utils` module provides some useful helper functions of random generation and gradient scale
+
+use std::f32::consts::PI;
+
 use glam::Vec2;
 use rand::Rng;
 use rand_distr::Distribution;
@@ -5,12 +9,6 @@ use rand_distr::Distribution;
 /// Round a `Vec2` from `(f32, f32)` to `(isize, isize)`
 pub fn round(input: Vec2) -> (isize, isize) {
     (input.x.round() as isize, input.y.round() as isize)
-}
-
-pub fn init_trail(init_pos: Vec2, n: usize) -> Vec<Vec2> {
-    let mut res = Vec::new();
-    (0..n).for_each(|_| res.push(init_pos));
-    res
 }
 
 /// Generate random `Vec2` within a circle range
@@ -50,6 +48,31 @@ pub fn gen_points_circle_normal(radius: f32, n: usize) -> Vec<Vec2> {
     res
 }
 
+/// Generate random `Vec2` within a circle range with normal distribution
+///
+/// Points closer to the center will be denser
+/// You can specify standard deviation yourself
+pub fn gen_points_circle_normal_dev(radius: f32, n: usize, std_dev: f32) -> Vec<Vec2> {
+    let mut rng = rand::thread_rng();
+    let normal =
+        rand_distr::Normal::new(0., std_dev).expect("Unable to generate normal distribution.");
+    let mut res = Vec::new();
+    while res.len() < n {
+        let x = normal.sample(&mut rng);
+        if x < -radius || x > radius {
+            continue;
+        }
+        let y = normal.sample(&mut rng);
+        if x < -radius || y > radius {
+            continue;
+        }
+        if x.powi(2) + y.powi(2) <= radius.powi(2) {
+            res.push(Vec2::new(x, y));
+        }
+    }
+    res
+}
+
 /// Generate random `Vec2` within a fan-shape range
 pub fn gen_points_fan(radius: f32, n: usize, st_angle: f32, ed_angle: f32) -> Vec<Vec2> {
     let mut res = Vec::new();
@@ -60,6 +83,26 @@ pub fn gen_points_fan(radius: f32, n: usize, st_angle: f32, ed_angle: f32) -> Ve
         if t <= ed_angle && t >= st_angle && x.powi(2) + y.powi(2) <= radius.powi(2) {
             res.push(Vec2::new(x, -y));
         }
+    }
+    res
+}
+
+/// Generate random `Vec2` on an arc
+pub fn gen_points_arc(radius: f32, n: usize, st_angle: f32, ed_angle: f32) -> Vec<Vec2> {
+    let mut res = Vec::new();
+    while res.len() < n {
+        let a = rand::thread_rng().gen_range(st_angle..=ed_angle);
+        res.push(Vec2::new(radius * a.cos(), -radius * a.sin()));
+    }
+    res
+}
+
+/// Generate random `Vec2` on a circle
+pub fn gen_points_on_circle(radius: f32, n: usize) -> Vec<Vec2> {
+    let mut res = Vec::new();
+    while res.len() < n {
+        let a = rand::thread_rng().gen_range(0.0..PI);
+        res.push(Vec2::new(radius * a.cos(), -radius * a.sin()));
     }
     res
 }

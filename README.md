@@ -25,14 +25,14 @@ Then, simply run the following commands:
 ```
 git clone https://github.com/Wayoung7/firework-rs.git
 cd firework-rs
-cargo run --release -- --demo 0
+cargo run --release -- -d 0
 ```
 
 or to install globally on your computer:
 
 ```
 cargo install firework-rs
-firework --demo 0
+firework -d 0
 ```
 
 The binary now has **4 demos**, from **0** to **3**. 
@@ -70,7 +70,7 @@ Options:
 If you have installed the binary:
 
 ```
-firework -l -g --demo 2
+firework -l -g -d 2
 ```
 
 If you have not installed the binary:
@@ -78,7 +78,7 @@ If you have not installed the binary:
 First `cd` into the project root directory, and then run:
 
 ```
-cargo run --release -- -l -g --demo 2
+cargo run --release -- -l -g -d 2
 ```
 
 ## Use the Library
@@ -176,19 +176,19 @@ cargo run --example <EXAMPLE-NAME>
 1. fountain
 
 <h4 align="center">
-<img src="gif/fountain.gif" alt="gif" width="400">
+<img src="gif/fountain.gif" alt="gif" width="600">
 </h4>
 
 2. vortex
 
 <h4 align="center">
-<img src="gif/vortex.gif" alt="gif" width="400">
+<img src="gif/vortex.gif" alt="gif" width="600">
 </h4>
 
 3. heart
 
 <h4 align="center">
-<img src="gif/heart.gif" alt="gif" width="400">
+<img src="gif/heart.gif" alt="gif" width="600">
 </h4>
 
 ## Compatibility

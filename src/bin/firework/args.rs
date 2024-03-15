@@ -1,5 +1,6 @@
 use clap::Parser;
 
+/// Used to receive command line arguments
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 pub struct Cli {

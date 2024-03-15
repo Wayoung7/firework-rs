@@ -1,3 +1,5 @@
+//! `term` module provides functions of rendering in terminal
+
 use std::io::{Stdout, Write};
 
 use crossterm::{cursor::MoveTo, queue, style, terminal};
@@ -50,6 +52,7 @@ impl Default for Terminal {
 }
 
 impl Terminal {
+    /// Reload terminal to adapt new window size
     pub fn reinit(&mut self) {
         let size = terminal::size().expect("Fail to get terminal size.");
         let mut screen = Vec::new();
@@ -103,7 +106,7 @@ impl Terminal {
     /// Write the rendering data of all `Fireworks` and `Particles` to `Terminal`
     pub fn render(&mut self, fm: &FireworkManager) {
         self.clear_screen();
-        for firework in fm.fireworks.iter() {
+        for firework in fm.fireworks.iter().rev() {
             if firework.state == FireworkState::Alive {
                 for particle in firework.current_particles.iter().rev() {
                     let grad = if firework.config.enable_gradient {

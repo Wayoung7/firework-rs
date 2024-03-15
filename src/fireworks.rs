@@ -1,12 +1,11 @@
+//! `firework` module provides functions to define, create and update fireworks
+
 use std::time::{Duration, SystemTime};
 
 use glam::Vec2;
 use rand::{seq::IteratorRandom, thread_rng};
 
-use crate::{
-    particle::{LifeState, Particle, ParticleConfig},
-    utils::init_trail,
-};
+use crate::particle::{LifeState, Particle, ParticleConfig};
 
 /// Struct representing a single firework
 pub struct Firework {
@@ -102,12 +101,6 @@ impl Firework {
             self.state = FireworkState::Alive;
         }
 
-        // Update
-        // if self.state == FireworkState::Alive {
-        //     self.particles
-        //         .iter_mut()
-        //         .for_each(|p| p.update(delta_time, &self.config));
-        // }
         self.current_particles
             .iter_mut()
             .for_each(|p| p.update(delta_time, &self.config));
@@ -119,14 +112,6 @@ impl Firework {
             .filter(|p| p.life_state != LifeState::Dead)
             .collect();
 
-        // if self.state == FireworkState::Alive
-        //     && self
-        //         .particles
-        //         .iter()
-        //         .fold(true, |acc, x| acc && x.is_dead())
-        // {
-        //     self.state = FireworkState::Gone;
-        // }
         match self.form {
             ExplosionForm::Instant { used } => {
                 if used && self.state == FireworkState::Alive && self.current_particles.is_empty() {
@@ -163,9 +148,6 @@ impl Firework {
                 *timer = Duration::ZERO;
             }
         }
-        // for ele in self.particles.iter_mut() {
-        //     ele.reset();
-        // }
     }
 }
 
@@ -364,4 +346,10 @@ impl FireworkManager {
             }
         }
     }
+}
+
+fn init_trail(init_pos: Vec2, n: usize) -> Vec<Vec2> {
+    let mut res = Vec::new();
+    (0..n).for_each(|_| res.push(init_pos));
+    res
 }

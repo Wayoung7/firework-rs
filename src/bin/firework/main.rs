@@ -1,3 +1,5 @@
+//! With the `firework` binary, you can run some pre-designed fireworks with command line arguments
+
 mod args;
 
 use std::{
@@ -13,7 +15,10 @@ use crossterm::{
     event::{self, KeyCode},
     execute, terminal,
 };
-use firework_rs::demo::{demo_firework_2, demo_firework_comb_0, demo_firework_comb_1};
+use firework_rs::demo::{
+    demo_firework_2, demo_firework_comb_0, demo_firework_comb_1, demo_firework_comb_2,
+    demo_firework_comb_3,
+};
 use firework_rs::fireworks::FireworkManager;
 use firework_rs::term::Terminal;
 use glam::Vec2;
@@ -28,12 +33,22 @@ fn main() -> Result<()> {
             Duration::from_secs_f32(0.7),
             cli.gradient,
         )),
-        1 => FireworkManager::default().add_fireworks(demo_firework_comb_1(
+        1 => FireworkManager::default().add_fireworks(demo_firework_comb_2(
+            Vec2::new(_width as f32 / 4., _height as f32 / 2.),
+            Duration::from_secs_f32(0.7),
+            cli.gradient,
+        )),
+        2 => FireworkManager::default().add_fireworks(demo_firework_comb_3(
+            Vec2::new(_width as f32 / 4., _height as f32 / 2.),
+            Duration::from_secs_f32(0.7),
+            cli.gradient,
+        )),
+        3 => FireworkManager::default().add_fireworks(demo_firework_comb_1(
             Vec2::new(_width as f32 / 4., 66.),
             Duration::from_secs_f32(0.2),
             cli.gradient,
         )),
-        2 => FireworkManager::default().add_firework(demo_firework_2(
+        4 => FireworkManager::default().add_firework(demo_firework_2(
             Vec2::new(_width as f32 / 4., _height as f32 / 2.),
             Duration::from_secs_f32(0.7),
             cli.gradient,

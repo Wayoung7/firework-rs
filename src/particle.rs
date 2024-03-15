@@ -1,3 +1,5 @@
+//! `particle` module provides functions to define, create and update particles
+
 use std::time::Duration;
 
 use glam::Vec2;
