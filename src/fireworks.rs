@@ -106,11 +106,8 @@ impl Firework {
             .for_each(|p| p.update(delta_time, &self.config));
 
         // Clean the dead pariticles
-        let p = self.current_particles.clone();
-        self.current_particles = p
-            .into_iter()
-            .filter(|p| p.life_state != LifeState::Dead)
-            .collect();
+        self.current_particles
+            .retain(|p| p.life_state != LifeState::Dead);
 
         match self.form {
             ExplosionForm::Instant { used } => {
@@ -268,6 +265,8 @@ pub struct FireworkManager {
     pub fireworks: Vec<Firework>,
     /// If this is `true`, the whole fireworks show will restart when all the `Firework`s are `Gone`
     pub enable_loop: bool,
+    /// Controls how fireworks are installed in `FireworkManager`
+    pub install_form: FireworkInstallForm,
 }
 
 impl Default for FireworkManager {
@@ -275,6 +274,7 @@ impl Default for FireworkManager {
         Self {
             fireworks: Vec::new(),
             enable_loop: false,
+            install_form: FireworkInstallForm::StaticInstall,
         }
     }
 }
@@ -285,13 +285,24 @@ impl FireworkManager {
         Self {
             fireworks,
             enable_loop: false,
+            install_form: FireworkInstallForm::StaticInstall,
         }
+    }
+
+    /// Add a `Firework` to a existing `FireworkManager`
+    pub fn add_firework(&mut self, firework: Firework) {
+        self.fireworks.push(firework);
+    }
+
+    /// Add `Firework`s to a existing `FireworkManager`
+    pub fn add_fireworks(&mut self, mut fireworks: Vec<Firework>) {
+        self.fireworks.append(&mut fireworks);
     }
 
     /// Add a `Firework` to `FireworkManager`
     #[inline]
     #[must_use]
-    pub fn add_firework(mut self, firework: Firework) -> Self {
+    pub fn with_firework(mut self, firework: Firework) -> Self {
         self.fireworks.push(firework);
         self
     }
@@ -299,7 +310,7 @@ impl FireworkManager {
     // Add a vector of `Firework`s to `FireworkManager`
     #[inline]
     #[must_use]
-    pub fn add_fireworks(mut self, mut fireworks: Vec<Firework>) -> Self {
+    pub fn with_fireworks(mut self, mut fireworks: Vec<Firework>) -> Self {
         self.fireworks.append(&mut fireworks);
         self
     }
@@ -336,7 +347,10 @@ impl FireworkManager {
         for ele in self.fireworks.iter_mut() {
             ele.update(now, delta_time);
         }
-        if self.enable_loop {
+        if self.install_form == FireworkInstallForm::DynamicInstall {
+            self.fireworks.retain(|f| f.state != FireworkState::Gone);
+        }
+        if self.install_form == FireworkInstallForm::StaticInstall && self.enable_loop {
             if self
                 .fireworks
                 .iter()
@@ -346,6 +360,25 @@ impl FireworkManager {
             }
         }
     }
+
+    /// Set `install_form` to `DynamicInstall`
+    pub fn enable_dyn_install(mut self) -> Self {
+        self.install_form = FireworkInstallForm::DynamicInstall;
+        self
+    }
+}
+
+/// `StaticInstall` keeps all the fireworks in `FireworkManager` and won't delete them
+///
+/// `DynamicInstall` automatically remove fireworks that are `Gone`, which let you add fireworks continuously
+///
+/// # Notes
+///
+///  - `FireworkManager` that has `DynamicInstall` can't loop, it will ignore the set `enable_loop` value
+#[derive(Debug, PartialEq)]
+pub enum FireworkInstallForm {
+    StaticInstall,
+    DynamicInstall,
 }
 
 fn init_trail(init_pos: Vec2, n: usize) -> Vec<Vec2> {

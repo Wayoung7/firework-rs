@@ -28,7 +28,7 @@ fn main() -> Result<()> {
 
     let mut time = SystemTime::now();
     let mut term = Terminal::default();
-    let mut fm = FireworkManager::default().add_firework(gen_vortex_firework(Vec2::new(
+    let mut fm = FireworkManager::default().with_firework(gen_vortex_firework(Vec2::new(
         _width as f32 / 4.,
         _height as f32 / 2.,
     )));

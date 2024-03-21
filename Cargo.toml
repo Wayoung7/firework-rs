@@ -1,12 +1,12 @@
 [package]
 name = "firework-rs"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Wayoung7 <https://github.com/Wayoung7>"]
 edition = "2021"
 description = "A cross-platform ascii-art firework simulator in terminal"
 readme = "README.md"
 repository = "https://github.com/Wayoung7/firework-rs"
-license-file = "LICENSE"
+license = "MIT"
 keywords = ["ascii", "fireworks", "terminal", "cli", "simulation"]
 categories = ["command-line-utilities"]
 exclude = ["gif/*"]

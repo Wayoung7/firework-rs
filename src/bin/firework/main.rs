@@ -1,9 +1,10 @@
 //! With the `firework` binary, you can run some pre-designed fireworks with command line arguments
 
 mod args;
+mod gen;
 
 use std::{
-    io::{stdout, Result},
+    io::{stdout, Error, Result},
     thread::sleep,
     time::{Duration, SystemTime},
 };
@@ -15,48 +16,65 @@ use crossterm::{
     event::{self, KeyCode},
     execute, terminal,
 };
-use firework_rs::demo::{
-    demo_firework_2, demo_firework_comb_0, demo_firework_comb_1, demo_firework_comb_2,
-    demo_firework_comb_3,
-};
 use firework_rs::fireworks::FireworkManager;
 use firework_rs::term::Terminal;
+use firework_rs::{
+    demo::{
+        demo_firework_2, demo_firework_comb_0, demo_firework_comb_1, demo_firework_comb_2,
+        demo_firework_comb_3,
+    },
+    fireworks::FireworkInstallForm,
+};
+use gen::dyn_gen;
 use glam::Vec2;
 
 fn main() -> Result<()> {
+    let mut fps: u8 = 20;
     let mut is_running = true;
     let cli = Cli::parse();
-    let (_width, _height) = terminal::size()?;
+    if let Some(f) = cli.fps {
+        if f < 5 || f > 30 {
+            return Err(Error::new(
+                std::io::ErrorKind::Other,
+                "Invalid fps value! Valid fps range: 5~30",
+            ));
+        } else {
+            fps = f;
+        }
+    }
+    let (mut _width, mut _height) = terminal::size()?;
     let mut fm = match cli.demo {
-        0 => FireworkManager::default().add_fireworks(demo_firework_comb_0(
+        Some(0) => FireworkManager::default().with_fireworks(demo_firework_comb_0(
             Vec2::new(_width as f32 / 4., _height as f32 / 2.),
             Duration::from_secs_f32(0.7),
             cli.gradient,
         )),
-        1 => FireworkManager::default().add_fireworks(demo_firework_comb_2(
+        Some(1) => FireworkManager::default().with_fireworks(demo_firework_comb_2(
             Vec2::new(_width as f32 / 4., _height as f32 / 2.),
             Duration::from_secs_f32(0.7),
             cli.gradient,
         )),
-        2 => FireworkManager::default().add_fireworks(demo_firework_comb_3(
+        Some(2) => FireworkManager::default().with_fireworks(demo_firework_comb_3(
             Vec2::new(_width as f32 / 4., _height as f32 / 2.),
             Duration::from_secs_f32(0.7),
             cli.gradient,
         )),
-        3 => FireworkManager::default().add_fireworks(demo_firework_comb_1(
+        Some(3) => FireworkManager::default().with_fireworks(demo_firework_comb_1(
             Vec2::new(_width as f32 / 4., 66.),
             Duration::from_secs_f32(0.2),
             cli.gradient,
         )),
-        4 => FireworkManager::default().add_firework(demo_firework_2(
+        Some(4) => FireworkManager::default().with_firework(demo_firework_2(
             Vec2::new(_width as f32 / 4., _height as f32 / 2.),
             Duration::from_secs_f32(0.7),
             cli.gradient,
         )),
+        None => FireworkManager::default().enable_dyn_install(),
         _ => {
-            println!("Demo number error\n");
-            is_running = false;
-            FireworkManager::default()
+            return Err(Error::new(
+                std::io::ErrorKind::Other,
+                "Invalid demo number! Demo number should be: 0~4",
+            ));
         }
     };
     fm.set_enable_loop(cli.looping);
@@ -84,14 +102,18 @@ fn main() -> Result<()> {
             };
         }
 
+        (_width, _height) = terminal::size()?;
         let delta_time = SystemTime::now().duration_since(time).unwrap();
+        if fm.install_form == FireworkInstallForm::DynamicInstall {
+            dyn_gen(&mut fm, _width, _height, cli.gradient);
+        }
         fm.update(time, delta_time);
         time = SystemTime::now();
         term.render(&fm);
         term.print(&mut stdout);
 
-        if delta_time < Duration::from_secs_f32(0.05) {
-            let rem = Duration::from_secs_f32(0.05) - delta_time;
+        if delta_time < Duration::from_secs_f32(1. / fps as f32) {
+            let rem = Duration::from_secs_f32(1. / fps as f32) - delta_time;
             sleep(rem);
         }
     }

@@ -18,6 +18,39 @@ use crate::{
     },
 };
 
+pub fn demo_firework_0(
+    center: Vec2,
+    spawn_after: Duration,
+    enable_gradient: bool,
+    colors: Vec<(u8, u8, u8)>,
+) -> Firework {
+    let mut particles = Vec::new();
+    for v in gen_points_circle_normal(
+        thread_rng().gen_range(230.0..400.0),
+        thread_rng().gen_range(33..47),
+    )
+    .iter()
+    {
+        particles.push(ParticleConfig::new(
+            center,
+            *v,
+            thread_rng().gen_range(20..25),
+            Duration::from_secs_f32(thread_rng().gen_range(1.8..2.3)),
+            *colors.iter().choose(&mut thread_rng()).unwrap(),
+        ));
+    }
+    let mut config = FireworkConfig::default().with_gradient_scale(explosion_gradient_1);
+    config.set_enable_gradient(enable_gradient);
+    Firework {
+        init_time: SystemTime::now(),
+        spawn_after,
+        center,
+        particles,
+        config,
+        ..Default::default()
+    }
+}
+
 pub fn demo_firework_1(center: Vec2, spawn_after: Duration, enable_gradient: bool) -> Firework {
     let colors = vec![
         (255, 102, 75),
@@ -26,7 +59,7 @@ pub fn demo_firework_1(center: Vec2, spawn_after: Duration, enable_gradient: boo
         (206, 32, 41),
     ];
     let mut particles = Vec::new();
-    for v in gen_points_circle_normal(280., 45).iter() {
+    for v in gen_points_circle_normal(250., 45).iter() {
         particles.push(ParticleConfig::new(
             center,
             *v,

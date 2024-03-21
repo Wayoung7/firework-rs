@@ -4,6 +4,12 @@ use clap::Parser;
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 pub struct Cli {
+    /// Select which demo to run. (optional)
+    ///
+    /// If this is not specified, automatically run the infinite random firework demo
+    #[arg(short, long, value_name = "DEMO-NUMBER")]
+    pub demo: Option<u8>,
+
     /// Set whether the fireworks show will loop infinitely
     #[arg(short, long)]
     pub looping: bool,
@@ -14,7 +20,9 @@ pub struct Cli {
     #[arg(short, long)]
     pub gradient: bool,
 
-    /// Select which demo to run
-    #[arg(short, long, value_name = "DEMO-NUMBER")]
-    pub demo: u8,
+    /// Set frame per second
+    ///
+    /// If this is not specified, the default fps is 12
+    #[arg(long, value_name = "FRAME-RATE")]
+    pub fps: Option<u8>,
 }

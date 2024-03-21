@@ -48,26 +48,42 @@ USAGE:
 firework [OPTIONS] --demo <DEMO-NUMBER>
 
 Options:
+    -d, --demo <DEMO-NUMBER>
+            Select which demo to run. (optional)
+          
+            If this is not specified, automatically run the infinite random firework demo
+
     -l, --looping
-        Make the fireworks show loop infinitely.
+            Set whether the fireworks show will loop infinitely
 
     -g, --gradient
-        Enable the color gradient of fireworks.
-        If this is enabled, it is recommanded that your terminal is non-transparent and has black background color to get better visual effects.
+            Set whether the fireworks will have color gradient
+          
+            If this is enabled, it is recommanded that your terminal is non-transparent and has black bg color to get better visual effects
 
-    -d, --demo <DEMO-NUMBER>
-        Select which demo to run.
+        --fps <FRAME-RATE>
+            Set frame per second
+          
+            If this is not specified, the default fps is 12
 
     -h, --help
-        Print help (see a summary with '-h' and full with '--help').
+            Print help (see a summary with '-h')
 
     -V, --version
-        Print version.
+            Print version
 ```
 
 ### Example Commands
 
 If you have installed the binary:
+
+Infinite firework show with gradient enabled:
+
+```
+firework -g
+```
+
+Demo 1 with looping and gradient enabled:
 
 ```
 firework -l -g -d 1
@@ -76,6 +92,10 @@ firework -l -g -d 1
 If you have not installed the binary:
 
 First `cd` into the project root directory, and then run:
+
+```
+cargo run --release -- -g
+```
 
 ```
 cargo run --release -- -l -g -d 1
