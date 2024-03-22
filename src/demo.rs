@@ -52,7 +52,7 @@ pub fn demo_firework_0(
 }
 
 pub fn demo_firework_1(center: Vec2, spawn_after: Duration, enable_gradient: bool) -> Firework {
-    let colors = vec![
+    let colors = [
         (255, 102, 75),
         (144, 56, 67),
         (255, 225, 124),
@@ -81,7 +81,7 @@ pub fn demo_firework_1(center: Vec2, spawn_after: Duration, enable_gradient: boo
 }
 
 pub fn demo_firework_2(center: Vec2, spawn_after: Duration, enable_gradient: bool) -> Firework {
-    let colors = vec![(250, 216, 68)];
+    let colors = [(250, 216, 68)];
     let mut particles = Vec::new();
     for v in gen_points_circle(100, 600).iter() {
         particles.push(ParticleConfig::new(
@@ -108,7 +108,7 @@ pub fn demo_firework_2(center: Vec2, spawn_after: Duration, enable_gradient: boo
 }
 
 pub fn demo_firework_3(center: Vec2, spawn_after: Duration, enable_gradient: bool) -> Firework {
-    let colors = vec![
+    let colors = [
         (242, 233, 190),
         (226, 196, 136),
         (149, 202, 176),
@@ -140,7 +140,7 @@ pub fn demo_firework_3(center: Vec2, spawn_after: Duration, enable_gradient: boo
 }
 
 pub fn demo_firework_4(center: Vec2, spawn_after: Duration, enable_gradient: bool) -> Firework {
-    let colors = vec![(242, 233, 190), (226, 196, 136), (255, 248, 253)];
+    let colors = [(242, 233, 190), (226, 196, 136), (255, 248, 253)];
     let mut particles = Vec::new();
     for v in gen_points_circle_normal(350., 25).iter() {
         particles.push(ParticleConfig::new(
@@ -166,7 +166,7 @@ pub fn demo_firework_4(center: Vec2, spawn_after: Duration, enable_gradient: boo
 }
 
 pub fn demo_firework_5(center: Vec2, spawn_after: Duration, enable_gradient: bool) -> Firework {
-    let colors = vec![(152, 186, 227), (54, 84, 117), (21, 39, 60)];
+    let colors = [(152, 186, 227), (54, 84, 117), (21, 39, 60)];
     let mut particles = Vec::new();
     for v in gen_points_circle_normal(450., 80).iter() {
         particles.push(ParticleConfig::new(
@@ -192,7 +192,7 @@ pub fn demo_firework_5(center: Vec2, spawn_after: Duration, enable_gradient: boo
 }
 
 pub fn demo_firework_6(center: Vec2, spawn_after: Duration, enable_gradient: bool) -> Firework {
-    let colors = vec![(242, 233, 190), (226, 196, 136), (255, 248, 253)];
+    let colors = [(242, 233, 190), (226, 196, 136), (255, 248, 253)];
     let mut particles = Vec::new();
     for v in gen_points_circle_normal(350., 35).iter() {
         particles.push(ParticleConfig::new(
@@ -238,7 +238,7 @@ pub fn demo_firework_comb_1(
     config1.set_enable_gradient(enable_gradient);
 
     // Explosion
-    let color2 = vec![
+    let color2 = [
         (235, 39, 155),
         (250, 216, 68),
         (242, 52, 72),
@@ -286,33 +286,29 @@ pub fn demo_firework_comb_0(
     spawn_after: Duration,
     enable_gradient: bool,
 ) -> Vec<Firework> {
-    let mut res = Vec::new();
-    res.push(demo_firework_3(
-        center + Vec2::new(-5., -19.),
-        spawn_after,
-        enable_gradient,
-    ));
-    res.push(demo_firework_4(
-        center + Vec2::new(-30., 0.),
-        spawn_after + Duration::from_secs_f32(0.4),
-        enable_gradient,
-    ));
-    res.push(demo_firework_5(
-        center + Vec2::new(12., 0.),
-        spawn_after + Duration::from_secs_f32(1.6),
-        enable_gradient,
-    ));
-    res.push(demo_firework_1(
-        center + Vec2::new(-9., 7.),
-        spawn_after + Duration::from_secs_f32(2.),
-        enable_gradient,
-    ));
-    res.push(demo_firework_6(
-        center + Vec2::new(24., -11.),
-        spawn_after + Duration::from_secs_f32(2.3),
-        enable_gradient,
-    ));
-    res
+    vec![
+        demo_firework_3(center + Vec2::new(-5., -19.), spawn_after, enable_gradient),
+        demo_firework_4(
+            center + Vec2::new(-30., 0.),
+            spawn_after + Duration::from_secs_f32(0.4),
+            enable_gradient,
+        ),
+        demo_firework_5(
+            center + Vec2::new(12., 0.),
+            spawn_after + Duration::from_secs_f32(1.6),
+            enable_gradient,
+        ),
+        demo_firework_1(
+            center + Vec2::new(-9., 7.),
+            spawn_after + Duration::from_secs_f32(2.),
+            enable_gradient,
+        ),
+        demo_firework_6(
+            center + Vec2::new(24., -11.),
+            spawn_after + Duration::from_secs_f32(2.3),
+            enable_gradient,
+        ),
+    ]
 }
 
 pub fn demo_firework_comb_2(
@@ -322,7 +318,7 @@ pub fn demo_firework_comb_2(
 ) -> Vec<Firework> {
     let mut res = Vec::new();
     let fountain1 = |center: Vec2, angle: f32| {
-        let colors = vec![(255, 183, 3), (251, 133, 0), (242, 233, 190)];
+        let colors = [(255, 183, 3), (251, 133, 0), (242, 233, 190)];
         let mut particles = Vec::new();
         for v in gen_points_fan(60., 20, angle - 0.05, angle + 0.05).iter() {
             particles.push(ParticleConfig::new(
@@ -353,7 +349,7 @@ pub fn demo_firework_comb_2(
     };
 
     let fountain2 = |center: Vec2| {
-        let colors = vec![(226, 196, 136), (255, 245, 253), (208, 58, 99)];
+        let colors = [(226, 196, 136), (255, 245, 253), (208, 58, 99)];
         let mut particles = Vec::new();
         for v in gen_points_fan(1000., 20, 5.7 / 12. * PI, 6.3 / 12. * PI).iter() {
             particles.push(ParticleConfig::new(
@@ -413,7 +409,7 @@ pub fn demo_firework_comb_2(
     res.push(fountain2(center + Vec2::new(-7., 21.)));
     res.push(fountain2(center + Vec2::new(7., 21.)));
 
-    (-33..=33).step_by(3).into_iter().for_each(|i| {
+    (-33..=33).step_by(3).for_each(|i| {
         res.push(mono(
             Vec2::new(center.x + i as f32, center.y + 21.),
             Duration::from_secs_f32(3.5),
@@ -421,7 +417,7 @@ pub fn demo_firework_comb_2(
         ))
     });
 
-    (-33..=33).step_by(3).into_iter().for_each(|i| {
+    (-33..=33).step_by(3).for_each(|i| {
         res.push(mono(
             Vec2::new(center.x + i as f32, center.y + 21.),
             Duration::from_secs_f32(4.7),
@@ -429,7 +425,7 @@ pub fn demo_firework_comb_2(
         ))
     });
 
-    (-33..=33).step_by(3).into_iter().for_each(|i| {
+    (-33..=33).step_by(3).for_each(|i| {
         res.push(mono(
             Vec2::new(center.x + i as f32, center.y + 21.),
             Duration::from_secs_f32(5.9),
@@ -447,7 +443,7 @@ pub fn demo_firework_comb_3(
 ) -> Vec<Firework> {
     let mut res = Vec::new();
     let f1 = {
-        let colors = vec![(255, 216, 190), (255, 238, 221), (248, 247, 255)];
+        let colors = [(255, 216, 190), (255, 238, 221), (248, 247, 255)];
         let mut particles = Vec::new();
         for v in gen_points_circle_normal_dev(14., 200, 60.).iter() {
             particles.push(ParticleConfig::new(
@@ -474,7 +470,7 @@ pub fn demo_firework_comb_3(
     };
     res.push(f1);
     let f2 = {
-        let colors = vec![
+        let colors = [
             (152, 186, 227),
             (89, 129, 177),
             (54, 84, 117),
@@ -507,7 +503,7 @@ pub fn demo_firework_comb_3(
     res.push(f2);
 
     for (idx, p) in gen_points_circle(27, 10).iter().enumerate() {
-        let colors = vec![(17, 138, 178), (6, 214, 160), (7, 59, 76), (255, 255, 255)];
+        let colors = [(17, 138, 178), (6, 214, 160), (7, 59, 76), (255, 255, 255)];
         let mut particles = Vec::new();
         for v in gen_points_circle_normal_dev(100., 35, 350. / 9.).iter() {
             particles.push(ParticleConfig::new(

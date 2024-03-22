@@ -156,17 +156,12 @@ impl Firework {
 ///
 /// - `Firework` turns to `Alive` when it is spawned
 /// - `Firework` turns to `Gone` when all of its `Particles` are `Dead`
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Default)]
 pub enum FireworkState {
+    #[default]
     Waiting,
     Alive,
     Gone,
-}
-
-impl Default for FireworkState {
-    fn default() -> Self {
-        FireworkState::Waiting
-    }
 }
 
 /// Enum that represents whether the `Firework` make one instantaneous explosion or continuously emit particles
@@ -350,14 +345,11 @@ impl FireworkManager {
         if self.install_form == FireworkInstallForm::DynamicInstall {
             self.fireworks.retain(|f| f.state != FireworkState::Gone);
         }
-        if self.install_form == FireworkInstallForm::StaticInstall && self.enable_loop {
-            if self
-                .fireworks
-                .iter()
-                .fold(true, |acc, x| acc && x.is_gone())
-            {
-                self.reset();
-            }
+        if self.install_form == FireworkInstallForm::StaticInstall
+            && self.enable_loop
+            && self.fireworks.iter().all(|f| f.is_gone())
+        {
+            self.reset();
         }
     }
 

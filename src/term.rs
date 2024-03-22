@@ -163,11 +163,7 @@ impl Terminal {
     }
 
     fn inside(&self, (x, y): (isize, isize)) -> bool {
-        if x < self.size.0 as isize && y < self.size.1 as isize && x >= 0 && y >= 0 {
-            true
-        } else {
-            false
-        }
+        x < self.size.0 as isize && y < self.size.1 as isize && x >= 0 && y >= 0
     }
 }
 
