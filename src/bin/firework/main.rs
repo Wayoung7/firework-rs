@@ -33,7 +33,7 @@ fn main() -> Result<()> {
     let mut is_running = true;
     let cli = Cli::parse();
     if let Some(f) = cli.fps {
-        if f < 5 || f > 30 {
+        if !(5..=30).contains(&f) {
             return Err(Error::new(
                 std::io::ErrorKind::Other,
                 "Invalid fps value! Valid fps range: 5~30",

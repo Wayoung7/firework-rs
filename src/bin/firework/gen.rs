@@ -5,7 +5,7 @@ use glam::Vec2;
 use rand::{seq::IteratorRandom, thread_rng, Rng};
 
 pub fn dyn_gen(fm: &mut FireworkManager, width: u16, height: u16, enable_gradient: bool) {
-    let colors = vec![
+    let colors = [
         vec![
             (255, 102, 75),
             (144, 56, 67),
