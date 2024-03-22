@@ -7,6 +7,11 @@ Firework-rs
 <br>
 </h1>
 
+<p align="center">
+<a href="https://crates.io/crates/firework-rs"><img alt="crates.io" src="https://img.shields.io/crates/v/firework-rs.svg"></a>
+<a><img alt="License" src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
+</p>
+
 Firework-rs is a cross-platform ascii-art firework simulator in terminal. Run the binary or use the library to create your own firework, and just enjoy the beautiful fireworks in your terminal!
 
 ## Features
