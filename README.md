@@ -71,6 +71,11 @@ Options:
           
             If this is not specified, the default fps is 12
 
+        --cjk
+          Set whether to enable cjk character
+          
+          If enabled, each character will take up two Latin character space
+
     -h, --help
             Print help (see a summary with '-h')
 
