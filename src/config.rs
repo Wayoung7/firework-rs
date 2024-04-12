@@ -1,10 +1,5 @@
 /// Configuration of the program
+#[derive(Default)]
 pub struct Config {
     pub enable_cjk: bool,
-}
-
-impl Default for Config {
-    fn default() -> Self {
-        Self { enable_cjk: false }
-    }
 }
