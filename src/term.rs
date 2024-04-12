@@ -7,6 +7,7 @@ use glam::Vec2;
 use rand::{seq::IteratorRandom, thread_rng};
 
 use crate::{
+    config::Config,
     fireworks::{FireworkManager, FireworkState},
     particle::LifeState,
     utils::distance_squared,
@@ -52,9 +53,31 @@ impl Default for Terminal {
 }
 
 impl Terminal {
+    pub fn new(cfg: &Config) -> Self {
+        let mut size = terminal::size().expect("Fail to get terminal size.");
+        if cfg.enable_cjk {
+            size.0 = (size.0 - 1) / 2;
+        }
+        let mut screen = Vec::new();
+        (0..size.1).for_each(|_| {
+            let mut line = Vec::new();
+            (0..size.0).for_each(|_| {
+                line.push(Char {
+                    text: ' ',
+                    color: style::Color::White,
+                })
+            });
+            screen.push(line);
+        });
+        Self { size, screen }
+    }
+
     /// Reload terminal to adapt new window size
-    pub fn reinit(&mut self) {
-        let size = terminal::size().expect("Fail to get terminal size.");
+    pub fn reinit(&mut self, cfg: &Config) {
+        let mut size = terminal::size().expect("Fail to get terminal size.");
+        if cfg.enable_cjk {
+            size.0 = (size.0 - 1) / 2;
+        }
         let mut screen = Vec::new();
         (0..size.1).for_each(|_| {
             let mut line = Vec::new();
@@ -88,12 +111,19 @@ impl Terminal {
     }
 
     /// Print the data out to terminal
-    pub fn print(&self, w: &mut Stdout) {
+    pub fn print(&self, w: &mut Stdout, cfg: &Config) {
         self.screen.iter().enumerate().for_each(|(y, line)| {
             line.iter().enumerate().for_each(|(x, c)| {
                 queue!(
                     w,
-                    MoveTo(x as u16, y as u16),
+                    MoveTo(
+                        if cfg.enable_cjk {
+                            (x * 2) as u16
+                        } else {
+                            x as u16
+                        },
+                        y as u16
+                    ),
                     style::SetForegroundColor(c.color),
                     style::Print(c.text)
                 )
@@ -104,7 +134,7 @@ impl Terminal {
     }
 
     /// Write the rendering data of all `Fireworks` and `Particles` to `Terminal`
-    pub fn render(&mut self, fm: &FireworkManager) {
+    pub fn render(&mut self, fm: &FireworkManager, cfg: &Config) {
         self.clear_screen();
         for firework in fm.fireworks.iter().rev() {
             if firework.state == FireworkState::Alive {
@@ -120,7 +150,13 @@ impl Terminal {
                     particle
                         .trail
                         .iter()
-                        .map(|p| Vec2::new(p.x * 2., p.y))
+                        .map(|p| {
+                            if cfg.enable_cjk {
+                                *p
+                            } else {
+                                Vec2::new(p.x * 2., p.y)
+                            }
+                        })
                         .rev()
                         .collect::<Vec<_>>()
                         .windows(2)
@@ -133,9 +169,15 @@ impl Terminal {
                                     && self.screen[p.1 as usize][p.0 as usize].text == ' '
                                 {
                                     if let Some(c) = match particle.life_state {
-                                        LifeState::Alive => Some(get_char_alive(density)),
-                                        LifeState::Declining => Some(get_char_declining(density)),
-                                        LifeState::Dying => Some(get_char_dying(density)),
+                                        LifeState::Alive => {
+                                            Some(get_char_alive(density, cfg.enable_cjk))
+                                        }
+                                        LifeState::Declining => {
+                                            Some(get_char_declining(density, cfg.enable_cjk))
+                                        }
+                                        LifeState::Dying => {
+                                            Some(get_char_dying(density, cfg.enable_cjk))
+                                        }
                                         LifeState::Dead => None,
                                     } {
                                         self.screen[p.1 as usize][p.0 as usize] = Char {
@@ -221,15 +263,34 @@ fn shift_gradient(color: (u8, u8, u8), scale: f32) -> (u8, u8, u8) {
     )
 }
 
-fn get_char_alive(density: f32) -> char {
+fn get_char_alive(density: f32, cjk: bool) -> char {
     let palette = if density < 0.3 {
-        "`'. "
+        if cjk {
+            "。，”“』 『￥"
+        } else {
+            "`'. "
+        }
     } else if density < 0.5 {
-        "/\\|()1{}[]?"
+        if cjk {
+            "一二三二三五十十已于上下义天"
+            // "いうよへくひとフーク "
+        } else {
+            "/\\|()1{}[]?"
+        }
     } else if density < 0.7 {
-        "oahkbdpqwmZO0QLCJUYXzcvunxrjft*"
+        if cjk {
+            "时中自字木月日目火田左右点以"
+            // "探しているのが誰かなのかどこかなのかそれともただ単に就職先なのか自分でもよくわからない"
+        } else {
+            "oahkbdpqwmZO0QLCJUYXzcvunxrjft*"
+        }
     } else {
-        "$@B%8&WM#"
+        if cjk {
+            "𰻞"
+            // "東京福岡横浜縄"
+        } else {
+            "$@B%8&WM#"
+        }
     };
     palette
         .chars()
@@ -237,15 +298,34 @@ fn get_char_alive(density: f32) -> char {
         .expect("Fail to choose character.")
 }
 
-fn get_char_declining(density: f32) -> char {
+fn get_char_declining(density: f32, cjk: bool) -> char {
     let palette = if density < 0.2 {
-        "` '. "
+        if cjk {
+            "？。， 『』 ||"
+        } else {
+            "` '. "
+        }
     } else if density < 0.6 {
-        "-_ +~<> i!lI;:,\"^"
+        if cjk {
+            "（）【】*￥|十一二三六"
+            // "（）【】*￥|ソファー"
+        } else {
+            "-_ +~<> i!lI;:,\"^"
+        }
     } else if density < 0.85 {
-        "/\\| ()1{}[ ]?"
+        if cjk {
+            "人中亿入上下火土"
+            // "人ならざるものに出会うかもしれない"
+        } else {
+            "/\\| ()1{}[ ]?"
+        }
     } else {
-        "xrjft*"
+        if cjk {
+            "繁荣昌盛国泰民安龍龖龠龜耋"
+            // "時間言葉目覚"
+        } else {
+            "xrjft*"
+        }
     };
     palette
         .chars()
@@ -253,11 +333,20 @@ fn get_char_declining(density: f32) -> char {
         .expect("Fail to choose character.")
 }
 
-fn get_char_dying(density: f32) -> char {
+fn get_char_dying(density: f32, cjk: bool) -> char {
     let palette = if density < 0.6 {
-        ".  ,`.    ^,' . "
+        if cjk {
+            "。 『 』 、： |。，— ……"
+        } else {
+            ".  ,`.    ^,' . "
+        }
     } else {
-        " /\\| ( )  1{} [  ]?i !l I;: ,\"^ "
+        if cjk {
+            "|￥人 上十入乙小 下"
+            // "イントマトナイフ"
+        } else {
+            " /\\| ( )  1{} [  ]?i !l I;: ,\"^ "
+        }
     };
     palette
         .chars()

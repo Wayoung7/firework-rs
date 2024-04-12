@@ -16,8 +16,8 @@ use crossterm::{
     event::{self, KeyCode},
     execute, terminal,
 };
-use firework_rs::fireworks::FireworkManager;
 use firework_rs::term::Terminal;
+use firework_rs::{config::Config, fireworks::FireworkManager};
 use firework_rs::{
     demo::{
         demo_firework_2, demo_firework_comb_0, demo_firework_comb_1, demo_firework_comb_2,
@@ -29,9 +29,13 @@ use gen::dyn_gen;
 use glam::Vec2;
 
 fn main() -> Result<()> {
+    let mut cfg = Config::default();
     let mut fps: u8 = 20;
     let mut is_running = true;
     let cli = Cli::parse();
+    if cli.cjk {
+        cfg = Config { enable_cjk: true };
+    }
     if let Some(f) = cli.fps {
         if !(5..=30).contains(&f) {
             return Err(Error::new(
@@ -84,7 +88,7 @@ fn main() -> Result<()> {
     execute!(stdout, terminal::EnterAlternateScreen, cursor::Hide)?;
 
     let mut time = SystemTime::now();
-    let mut term = Terminal::default();
+    let mut term = Terminal::new(&cfg);
 
     while is_running {
         if event::poll(Duration::ZERO)? {
@@ -96,7 +100,7 @@ fn main() -> Result<()> {
                 }
                 event::Event::Resize(_, _) => {
                     fm.reset();
-                    term.reinit();
+                    term.reinit(&cfg);
                 }
                 _ => {}
             };
@@ -105,12 +109,22 @@ fn main() -> Result<()> {
         (_width, _height) = terminal::size()?;
         let delta_time = SystemTime::now().duration_since(time).unwrap();
         if fm.install_form == FireworkInstallForm::DynamicInstall {
-            dyn_gen(&mut fm, _width, _height, cli.gradient);
+            dyn_gen(
+                &mut fm,
+                if cfg.enable_cjk {
+                    (_width - 1) / 2
+                } else {
+                    _width
+                },
+                _height,
+                cli.gradient,
+                &cfg,
+            );
         }
         fm.update(time, delta_time);
         time = SystemTime::now();
-        term.render(&fm);
-        term.print(&mut stdout);
+        term.render(&fm, &cfg);
+        term.print(&mut stdout, &cfg);
 
         if delta_time < Duration::from_secs_f32(1. / fps as f32) {
             let rem = Duration::from_secs_f32(1. / fps as f32) - delta_time;

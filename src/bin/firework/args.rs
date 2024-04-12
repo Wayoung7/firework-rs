@@ -25,4 +25,10 @@ pub struct Cli {
     /// If this is not specified, the default fps is 12
     #[arg(long, value_name = "FRAME-RATE")]
     pub fps: Option<u8>,
+
+    /// Set whether to enable cjk character
+    ///
+    /// If enabled, each character will take up two Latin character space
+    #[arg(long)]
+    pub cjk: bool,
 }

@@ -10,6 +10,7 @@ use crossterm::{
     execute, terminal,
 };
 use firework_rs::{
+    config::Config,
     fireworks::{ExplosionForm, Firework, FireworkConfig, FireworkManager},
     particle::ParticleConfig,
     term::Terminal,
@@ -22,6 +23,7 @@ fn main() -> Result<()> {
     let mut stdout = stdout();
     let (_width, _height) = terminal::size()?;
     let mut is_running = true;
+    let cfg = Config::default();
 
     terminal::enable_raw_mode()?;
     execute!(stdout, terminal::EnterAlternateScreen, cursor::Hide)?;
@@ -43,7 +45,7 @@ fn main() -> Result<()> {
                 }
                 event::Event::Resize(_, _) => {
                     fm.reset();
-                    term.reinit();
+                    term.reinit(&cfg);
                 }
                 _ => {}
             };
@@ -53,8 +55,8 @@ fn main() -> Result<()> {
         fm.update(time, delta_time);
         time = SystemTime::now();
 
-        term.render(&fm);
-        term.print(&mut stdout);
+        term.render(&fm, &cfg);
+        term.print(&mut stdout, &cfg);
 
         if delta_time < Duration::from_secs_f32(0.05) {
             let rem = Duration::from_secs_f32(0.05) - delta_time;

@@ -9,6 +9,7 @@ use glam::Vec2;
 use rand::{seq::IteratorRandom, thread_rng, Rng};
 
 use crate::{
+    config::Config,
     fireworks::{ExplosionForm, Firework, FireworkConfig},
     particle::ParticleConfig,
     utils::{
@@ -23,11 +24,16 @@ pub fn demo_firework_0(
     spawn_after: Duration,
     enable_gradient: bool,
     colors: Vec<(u8, u8, u8)>,
+    cfg: &Config,
 ) -> Firework {
     let mut particles = Vec::new();
     for v in gen_points_circle_normal(
-        thread_rng().gen_range(230.0..400.0),
-        thread_rng().gen_range(33..47),
+        thread_rng().gen_range(if cfg.enable_cjk {
+            400.0..600.0
+        } else {
+            230.0..400.0
+        }),
+        thread_rng().gen_range(if cfg.enable_cjk { 20..35 } else { 33..47 }),
     )
     .iter()
     {

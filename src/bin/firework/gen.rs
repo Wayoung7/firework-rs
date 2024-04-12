@@ -1,10 +1,16 @@
 use std::time::Duration;
 
-use firework_rs::{demo::demo_firework_0, fireworks::FireworkManager};
+use firework_rs::{config::Config, demo::demo_firework_0, fireworks::FireworkManager};
 use glam::Vec2;
 use rand::{seq::IteratorRandom, thread_rng, Rng};
 
-pub fn dyn_gen(fm: &mut FireworkManager, width: u16, height: u16, enable_gradient: bool) {
+pub fn dyn_gen(
+    fm: &mut FireworkManager,
+    width: u16,
+    height: u16,
+    enable_gradient: bool,
+    cfg: &Config,
+) {
     let colors = [
         vec![
             (255, 102, 75),
@@ -47,8 +53,20 @@ pub fn dyn_gen(fm: &mut FireworkManager, width: u16, height: u16, enable_gradien
             (255, 155, 84),
         ],
         vec![(0, 29, 61), (0, 53, 102), (255, 195, 0), (255, 214, 10)],
+        vec![
+            (61, 52, 139),
+            (118, 120, 237),
+            (247, 184, 1),
+            (241, 135, 1),
+            (243, 91, 4),
+        ],
     ];
-    if fm.fireworks.len() < (width as usize * height as usize) / 1300 + 3 {
+    let limit = if cfg.enable_cjk {
+        (width as usize * height as usize) / 1800 + 3
+    } else {
+        (width as usize * height as usize) / 1300 + 3
+    };
+    if fm.fireworks.len() < limit {
         let x: isize = thread_rng().gen_range(-3..(width as isize + 3));
         let y: isize = thread_rng().gen_range(-1..(height as isize + 1));
         fm.add_firework(demo_firework_0(
@@ -56,6 +74,7 @@ pub fn dyn_gen(fm: &mut FireworkManager, width: u16, height: u16, enable_gradien
             Duration::from_secs_f32(thread_rng().gen_range(0.0..2.0)),
             enable_gradient,
             colors.iter().choose(&mut thread_rng()).unwrap().to_owned(),
+            cfg,
         ));
     }
 }

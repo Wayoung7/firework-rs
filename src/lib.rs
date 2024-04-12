@@ -1,3 +1,4 @@
+pub mod config;
 pub mod demo;
 pub mod fireworks;
 pub mod particle;
