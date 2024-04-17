@@ -1,6 +1,6 @@
 //! `particle` module provides functions to define, create and update particles
 
-use std::time::Duration;
+use std::{collections::VecDeque, time::Duration};
 
 use glam::Vec2;
 
@@ -23,7 +23,7 @@ pub struct Particle {
     pub pos: Vec2,
     pub vel: Vec2,
     /// Records a `trail_length` of previous positions of the `Particle`
-    pub trail: Vec<Vec2>,
+    pub trail: VecDeque<Vec2>,
     pub life_state: LifeState,
     /// `Duration` since initialization of this `Particle`
     pub time_elapsed: Duration,
@@ -35,7 +35,7 @@ impl Default for Particle {
         Self {
             pos: Vec2::ZERO,
             vel: Vec2::ZERO,
-            trail: Vec::new(),
+            trail: VecDeque::new(),
             life_state: LifeState::Alive,
             time_elapsed: Duration::ZERO,
             config: ParticleConfig::default(),
@@ -52,8 +52,7 @@ impl Particle {
         life_time: Duration,
         color: (u8, u8, u8),
     ) -> Self {
-        let mut trail = Vec::with_capacity(trail_length);
-        (0..trail_length).for_each(|_| trail.push(pos));
+        let trail = VecDeque::from(vec![pos; trail_length]);
         let life_state = LifeState::Alive;
         Self {
             pos,
@@ -97,8 +96,8 @@ impl Particle {
             self.pos += TIME_STEP * self.vel;
             t += TIME_STEP;
         }
-        self.trail.remove(0);
-        self.trail.push(self.pos);
+        self.trail.pop_front();
+        self.trail.push_back(self.pos);
     }
 }
 
