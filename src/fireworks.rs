@@ -1,6 +1,9 @@
 //! `firework` module provides functions to define, create and update fireworks
 
-use std::{collections::VecDeque, time::{Duration, SystemTime}};
+use std::{
+    collections::VecDeque,
+    time::{Duration, SystemTime},
+};
 
 use glam::Vec2;
 use rand::{seq::IteratorRandom, thread_rng};

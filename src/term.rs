@@ -37,17 +37,16 @@ pub struct Terminal {
 impl Default for Terminal {
     fn default() -> Self {
         let size = terminal::size().expect("Fail to get terminal size.");
-        let mut screen = Vec::new();
-        (0..size.1).for_each(|_| {
-            let mut line = Vec::new();
-            (0..size.0).for_each(|_| {
-                line.push(Char {
+        let screen = vec![
+            vec![
+                Char {
                     text: ' ',
-                    color: style::Color::White,
-                })
-            });
-            screen.push(line);
-        });
+                    color: style::Color::White
+                };
+                size.0 as usize
+            ];
+            size.1 as usize
+        ];
         Self { size, screen }
     }
 }
@@ -58,17 +57,16 @@ impl Terminal {
         if cfg.enable_cjk {
             size.0 = (size.0 - 1) / 2;
         }
-        let mut screen = Vec::new();
-        (0..size.1).for_each(|_| {
-            let mut line = Vec::new();
-            (0..size.0).for_each(|_| {
-                line.push(Char {
+        let screen = vec![
+            vec![
+                Char {
                     text: ' ',
-                    color: style::Color::White,
-                })
-            });
-            screen.push(line);
-        });
+                    color: style::Color::White
+                };
+                size.0 as usize
+            ];
+            size.1 as usize
+        ];
         Self { size, screen }
     }
 
@@ -78,36 +76,32 @@ impl Terminal {
         if cfg.enable_cjk {
             size.0 = (size.0 - 1) / 2;
         }
-        let mut screen = Vec::new();
-        (0..size.1).for_each(|_| {
-            let mut line = Vec::new();
-            (0..size.0).for_each(|_| {
-                line.push(Char {
-                    text: ' ',
-                    color: style::Color::White,
-                })
-            });
-            screen.push(line);
-        });
-        self.screen = screen;
         self.size = size;
+        self.screen = vec![
+            vec![
+                Char {
+                    text: ' ',
+                    color: style::Color::White
+                };
+                size.0 as usize
+            ];
+            size.1 as usize
+        ];
     }
 
     /// Clear the terminal screen by setting all the characters in terminal to space
     pub fn clear_screen(&mut self) {
         let size = terminal::size().expect("Fail to get terminal size.");
-        let mut s = Vec::new();
-        (0..size.1).for_each(|_| {
-            let mut line = Vec::new();
-            (0..size.0).for_each(|_| {
-                line.push(Char {
+        self.screen = vec![
+            vec![
+                Char {
                     text: ' ',
-                    color: style::Color::White,
-                })
-            });
-            s.push(line);
-        });
-        self.screen = s;
+                    color: style::Color::White
+                };
+                size.0 as usize
+            ];
+            size.1 as usize
+        ];
     }
 
     /// Print the data out to terminal
@@ -285,10 +279,10 @@ fn get_char_alive(density: f32, cjk: bool) -> char {
             "oahkbdpqwmZO0QLCJUYXzcvunxrjft*"
         }
     } else if cjk {
-            "𰻞"
-            // "東京福岡横浜縄"
-        } else {
-            "$@B%8&WM#"
+        "龖龠龜"
+        // "東京福岡横浜縄"
+    } else {
+        "$@B%8&WM#"
     };
     palette
         .chars()
@@ -318,10 +312,10 @@ fn get_char_declining(density: f32, cjk: bool) -> char {
             "/\\| ()1{}[ ]?"
         }
     } else if cjk {
-            "繁荣昌盛国泰民安龍龖龠龜耋"
-            // "時間言葉目覚"
-        } else {
-            "xrjft*"
+        "繁荣昌盛国泰民安龍龖龠龜耋"
+        // "時間言葉目覚"
+    } else {
+        "xrjft*"
     };
     palette
         .chars()
@@ -337,10 +331,10 @@ fn get_char_dying(density: f32, cjk: bool) -> char {
             ".  ,`.    ^,' . "
         }
     } else if cjk {
-            "|￥人 上十入乙小 下"
-            // "イントマトナイフ"
-        } else {
-            " /\\| ( )  1{} [  ]?i !l I;: ,\"^ "
+        "|￥人 上十入乙小 下"
+        // "イントマトナイフ"
+    } else {
+        " /\\| ( )  1{} [  ]?i !l I;: ,\"^ "
     };
     palette
         .chars()
