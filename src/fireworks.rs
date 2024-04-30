@@ -1,6 +1,6 @@
 //! `firework` module provides functions to define, create and update fireworks
 
-use std::time::{Duration, SystemTime};
+use std::{collections::VecDeque, time::{Duration, SystemTime}};
 
 use glam::Vec2;
 use rand::{seq::IteratorRandom, thread_rng};
@@ -373,8 +373,6 @@ pub enum FireworkInstallForm {
     DynamicInstall,
 }
 
-fn init_trail(init_pos: Vec2, n: usize) -> Vec<Vec2> {
-    let mut res = Vec::new();
-    (0..n).for_each(|_| res.push(init_pos));
-    res
+fn init_trail(init_pos: Vec2, n: usize) -> VecDeque<Vec2> {
+    VecDeque::from(vec![init_pos; n])
 }

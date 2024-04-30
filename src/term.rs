@@ -284,13 +284,11 @@ fn get_char_alive(density: f32, cjk: bool) -> char {
         } else {
             "oahkbdpqwmZO0QLCJUYXzcvunxrjft*"
         }
-    } else {
-        if cjk {
+    } else if cjk {
             "𰻞"
             // "東京福岡横浜縄"
         } else {
             "$@B%8&WM#"
-        }
     };
     palette
         .chars()
@@ -319,13 +317,11 @@ fn get_char_declining(density: f32, cjk: bool) -> char {
         } else {
             "/\\| ()1{}[ ]?"
         }
-    } else {
-        if cjk {
+    } else if cjk {
             "繁荣昌盛国泰民安龍龖龠龜耋"
             // "時間言葉目覚"
         } else {
             "xrjft*"
-        }
     };
     palette
         .chars()
@@ -340,13 +336,11 @@ fn get_char_dying(density: f32, cjk: bool) -> char {
         } else {
             ".  ,`.    ^,' . "
         }
-    } else {
-        if cjk {
+    } else if cjk {
             "|￥人 上十入乙小 下"
             // "イントマトナイフ"
         } else {
             " /\\| ( )  1{} [  ]?i !l I;: ,\"^ "
-        }
     };
     palette
         .chars()
