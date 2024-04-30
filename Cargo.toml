@@ -1,6 +1,6 @@
 [package]
 name = "firework-rs"
-version = "0.3.0"
+version = "0.3.1"
 authors = ["Wayoung7 <https://github.com/Wayoung7>"]
 edition = "2021"
 description = "A cross-platform ascii-art firework simulator in terminal"
