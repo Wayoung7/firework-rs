@@ -94,7 +94,7 @@ fn main() -> Result<()> {
         if event::poll(Duration::ZERO)? {
             match event::read()? {
                 event::Event::Key(e) => {
-                    if e.code == KeyCode::Esc {
+                    if e.code == KeyCode::Esc || (e.code == KeyCode::Char('c') && e.modifiers.contains(event::KeyModifiers::CONTROL)) {
                         is_running = false;
                     }
                 }
